@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RitmDojo: ритм-тренажёр для гитары</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#eceff3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1418" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RitmDojo">
+<link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--bg:#eceff3;--card:#fff;--fg:#101820;--mut:#5b6773;--line:#d3d9e0;--lis:#5b3fd0;--ok:#0e7c66;--need:#d2402d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1418;--card:#182027;--fg:#e8edf2;--mut:#8d9aa6;--line:#2b3640;--lis:#a78bfa;--ok:#34d399;--need:#f87171}}
+:root[data-theme="dark"]{--bg:#0f1418;--card:#182027;--fg:#e8edf2;--mut:#8d9aa6;--line:#2b3640;--lis:#a78bfa;--ok:#34d399;--need:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 "Avenir Next","Helvetica Neue",system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:24px;margin:0 0 2px}p.sub{margin:0 0 16px;color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--mut);flex:1;min-width:200px}
+select,input[type=number]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px}
+button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer}
+button:hover{border-color:var(--mut)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--lis);outline-offset:2px}
+.chip.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#bpm{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;min-width:90px;text-align:center}
+#phase{font-size:28px;font-weight:700}#phase.cnt{color:var(--mut)}#phase.lis{color:var(--lis)}#phase.pl{color:var(--ok)}
+#bars{color:var(--mut);margin-left:auto}
+#strip{position:relative;margin:10px 2px 6px}
+.gr{display:grid;font-size:13px;color:var(--mut)}
+.gr span{padding:0 0 3px 3px;border-left:1px solid var(--line);overflow:hidden;white-space:nowrap}
+.gr span.bt{border-left:2px solid var(--fg);color:var(--fg);font-weight:700;font-size:15px}
+.gr span.now{background:color-mix(in srgb,var(--need) 20%,transparent)}
+.gr span.tc{text-align:center;padding-left:0}
+.ft span.c{margin-left:0;transform:translateX(-50%)}
+.nt{position:relative;height:56px;border-bottom:2px solid var(--line)}
+.nt i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}.nt i.b{width:2px;background:var(--fg);opacity:.4}
+.nt b{position:absolute;top:10px;bottom:10px;border-radius:6px;background:var(--card);border:2px solid var(--fg);transition:opacity .2s}
+.nt b.a{background:var(--fg)}
+#strip.mute .nt b{opacity:.35}
+.ft{position:relative;height:24px;font-size:16px;color:var(--mut)}.ft span{position:absolute;top:2px;margin-left:3px}.ft span.d{color:var(--fg);font-weight:700}
+#strip u{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--need);border-radius:2px;z-index:2}
+
+
+
+
+
+#beats{display:flex;justify-content:space-between;padding:0 2px;color:var(--mut)}#beats span{width:25%;text-align:left;padding-left:2px}
+#beats span.on{color:var(--fg);font-weight:700}
+.tr{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.tr button{flex:1;min-width:120px;font-size:17px;padding:14px}
+#bplay{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:700;flex:2}
+.opt{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:15px}.opt label{flex-direction:row;align-items:center;gap:6px;min-width:0;flex:none;white-space:nowrap;color:var(--fg)}
+.opt input[type=number]{width:64px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14px;color:var(--mut)}dt{color:var(--fg)}dd{margin:0}
+kbd{font:inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 6px;background:var(--bg)}
+#pgb{height:12px;background:var(--line);border-radius:6px;overflow:hidden;cursor:pointer}#pgf{display:block;height:100%;width:0;background:var(--ok);transition:width .3s linear}
+#hud b{display:block;font-size:26px;font-variant-numeric:tabular-nums;color:var(--fg)}#hud .row>div{color:var(--mut);font-size:13px}
+#fb{font-size:26px;font-weight:700;min-height:36px;margin-top:6px}#fb.ok{color:var(--ok);animation:pop .25s}#fb.bad{color:var(--need);animation:pop .25s}@keyframes pop{from{transform:scale(1.2)}to{transform:scale(1)}}
+#lvm{position:relative;width:130px;height:10px;background:var(--line);border-radius:5px;overflow:hidden}#lvf{display:block;height:100%;width:0;background:var(--ok)}
+#hg{display:flex;align-items:flex-end;gap:2px;height:48px;margin-top:8px;border-bottom:2px solid var(--line)}#hg i{flex:1;opacity:.85;min-height:2px;border-radius:2px 2px 0 0}
+</style></head><body><main>
+<h1>RitmDojo</h1>
+<p class="sub">Голос считает четверти, нога вниз на цифру и вверх на «и».</p>
+<div class="card" id="pg"><div id="pgb" title="Нажмите, чтобы перейти к уроку"><i id="pgf"></i></div><div class="row" style="margin-top:8px;justify-content:space-between"><span id="pgt1"></span><span id="pgt2"></span><span id="pgt3"></span><span id="pgt4"></span></div></div>
+<div class="card">
+<div class="row"><label>Тема<select id="sx"></select></label><label>Рисунок<select id="sp"></select></label></div>
+<div class="row" style="margin-top:12px"><button id="m5" title="Темп −5">−5</button><div id="bpm">60</div><button id="p5" title="Темп +5">+5</button><div id="tempos" class="row"></div></div>
+</div>
+<div class="card">
+<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:40px"><div id="phase">Стоп</div><div style="position:relative;display:flex"><svg id="foot" width="46" height="36" viewBox="0 0 72 56" aria-hidden="true"><line x1="2" y1="52" x2="70" y2="52" stroke-width="3" stroke-linecap="round" style="stroke:var(--line)"/><ellipse id="fm" cx="46" cy="52" rx="16" ry="3" opacity="0" style="fill:var(--need)"/><line x1="26" y1="2" x2="26" y2="34" stroke-width="9" stroke-linecap="round" style="stroke:var(--mut)"/><g id="ft"><path d="M13 49 L13 41 Q13 36 19 36 L33 36 Q46 36 54 44 Q64 46 64 49 Z" style="fill:var(--fg)"/></g><circle cx="26" cy="34" r="4.5" style="fill:var(--card)"/></svg><span id="fdir" style="position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:8px;font-size:24px;font-weight:700;width:1.1em;text-align:center">↓</span></div><div id="bars" style="text-align:right"></div></div>
+<div id="pname" style="font-size:18px;font-weight:700;margin-top:8px"></div><div id="strip"></div>
+</div>
+<div class="card" id="hud" hidden><div class="row" style="gap:20px"><div>Уровень<b id="hl"></b></div><div>Счёт<b id="hs"></b></div><div>Множитель и серия<b id="hc"></b></div><div>Точность<b id="ha"></b></div><div>Звёзды<b id="hst"></b></div><div>Рекорд<b id="hh"></b></div></div><canvas id="cv" style="width:100%;height:150px;display:block;margin-top:10px;border-radius:8px;background:var(--bg)"></canvas><div style="font-size:12px;color:var(--mut);margin-top:4px">Круги сверху: что нужно сыграть. Ромбы снизу: что вы сыграли. Зелёный: в точку, синий: рано или поздно, красный: мимо или лишняя нота. Красная линия: сейчас.</div><div id="fb"></div>
+<div id="tm" style="font-size:14px;color:var(--mut);margin-top:8px"></div><div id="hg"></div><div class="row" style="justify-content:space-between;font-size:12px;color:var(--mut)"><span>рано, −100 мс</span><span>0</span><span>поздно, +100 мс</span></div></div>
+<div class="tr"><button id="bprev" title="←">Назад</button><button id="brst">Сначала (Enter)</button><button id="bplay">Старт (пробел)</button><button id="bnext" title="→">Дальше</button></div>
+<div class="card opt">
+<label><input type="checkbox" id="oloop">Повторять рисунок</label>
+<label><input type="checkbox" id="ocnt">Такт счёта перед стартом</label>
+<label>Слушаю, тактов<input type="number" id="oL" min="0" max="8"></label>
+<label>Играю, тактов<input type="number" id="oP" min="1" max="16"></label>
+<label><input type="checkbox" id="ovoc">Счёт голосом</label>
+<label>Громкость голоса<input type="range" id="ovol" min="0" max="200" step="5" style="width:130px"><span id="ovolv" style="min-width:44px;font-variant-numeric:tabular-nums"></span></label>
+<label><input type="checkbox" id="onote">Рисунок звучит</label>
+<label><input type="checkbox" id="onp">Рисунок и когда играю</label>
+<label>Громкость рисунка<input type="range" id="onv" min="0" max="200" step="5" style="width:130px"><span id="onvv" style="min-width:44px;font-variant-numeric:tabular-nums"></span></label>
+
+<details style="flex-basis:100%;font-size:14px;color:var(--mut)"><summary style="cursor:pointer;color:var(--fg)">Игра с гитарой</summary>
+<div class="row" style="margin-top:8px;gap:10px 16px"><label style="flex:none;min-width:0;flex-direction:row;align-items:center;gap:6px;color:var(--fg)"><input type="checkbox" id="ogm">Игра включена</label>
+<label style="flex:none;min-width:0">Вход<select id="min"><option>Системный вход</option></select></label>
+<label style="flex:none;min-width:0">Чувствительность<input type="range" id="osn" min="0" max="100" style="width:130px"></label>
+<div id="lvm" title="Уровень сигнала"><i id="lvf"></i><i style="position:absolute;left:25%;top:0;bottom:0;width:2px;background:var(--fg)"></i></div>
+<label id="lout" style="display:none;flex:none;min-width:0">Выход<select id="mout"></select></label><button id="bcal">Калибровка</button><button id="bauto">Задержка: авто</button><span id="mst" style="flex-basis:100%"></span><span id="lst" style="flex-basis:100%"></span></div>
+<p style="margin:8px 0 0">Подключите гитару через аудиоинтерфейс и выберите его в списке «Вход». В Chrome выберите тот же интерфейс и в списке «Выход»: тогда вход и выход идут от одних часов и не расходятся за время занятия. Поднимайте чувствительность, пока полоска не заходит за метку на каждой ноте. Калибровка измеряет задержку «выход, затем вход». Проще всего замкнуть выход интерфейса на его вход кабелем: тогда измеряется только техника. Можно и играть на каждый щелчок: тогда в задержку попадёт и ваша привычка играть чуть раньше или позже. Оцениваются только такты «играю»: до 45 мс идеально, до 90 мс хорошо. Уровень пройден при точности от 60%, звёзды за 75% и 90%. Под окном нот показан тайминг уровня: сдвиг μ (минус значит торопитесь), разброс σ, эксцесс, форма и средний сдвиг ударов на долю и на «и». Начало ноты ищется по огибающей сигнала с точностью до отсчёта, поэтому в режиме AudioWorklet разброс в несколько миллисекунд уже различим. Эксцесс и форма надёжны от 12–16 нот.</p></details>
+<button id="bsave" hidden style="margin-left:auto">Сохранить как файл</button>
+<details style="flex-basis:100%;font-size:14px;color:var(--mut)"><summary style="cursor:pointer;color:var(--fg)">Выравнивание голоса по ударному слогу</summary>
+<div id="tune" style="display:grid;grid-template-columns:auto 1fr auto;gap:8px 12px;align-items:center;margin-top:8px"></div>
+<p style="margin:8px 0 0">Каждое слово сдвигается так, чтобы начало ударной гласной попало на долю. Оно находится по спектрограмме при загрузке файла. Минус звучит раньше, плюс позже. Двойной щелчок по ползунку возвращает автозначение, изменения вступают в силу со следующего такта.</p>
+<button id="ta" style="margin-top:8px">Авто по спектрограмме</button> <button id="tz" style="margin-top:8px">Все в ноль</button></details>
+<span hidden id="vst2" style="color:var(--mut);font-size:13px;flex-basis:100%"></span>
+<span hidden id="vst" style="color:var(--mut);font-size:13px;flex-basis:100%"></span>
+
+</div>
+<div class="card"><dl>
+<dt><kbd>Пробел</kbd></dt><dd>старт и пауза</dd>
+<dt><kbd>Enter</kbd></dt><dd>откат к началу упражнения (с тактом счёта)</dd>
+<dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>предыдущий и следующий темп</dd>
+<dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>предыдущий и следующий рисунок</dd>
+<dt><kbd>−</kbd> <kbd>=</kbd></dt><dd>темп на 5 медленнее и быстрее для всех рисунков</dd>
+<dt><kbd>L</kbd></dt><dd>повтор рисунка вкл и выкл</dd>
+<dt><kbd>N</kbd></dt><dd>нота рисунка звучит и в тактах «играю», вкл и выкл на ходу</dd>
+<dt><kbd>1</kbd>–<kbd>8</kbd></dt><dd>перейти к теме</dd>
+</dl><p style="margin:10px 0 0;font-size:13px;color:var(--mut)">Сначала кликните по странице, чтобы заработали клавиши. Раскладка не важна.</p></div>
+</main>
+<script id="vdata" type="application/json">{"раз": "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAADwAABtUAKSkpKSkpOTk5OTk5OUhISEhISFdXV1dXV1dnZ2dnZ2dndnZ2dnZ2hYWFhYWFhZWVlZWVlZWkpKSkpKSzs7Ozs7OzwsLCwsLCwtLS0tLS0uHh4eHh4eHw8PDw8PDw////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQDfQAAAAAAAAbVYHixGwAAAAAAAAAAAAAAAAD/80DEABLIglwFTBgAEgwJBMUFcAcAMDaYAcAMD5+kEAGg6MiQJB5116+9AMDAwN1HAQOZRYPg+oHz5QEKwfB8oD4Pn//KAhw/wTP/xGH/5c//+H//ylYPqkGJJaqqqALKae03ckqFf//zQsQPGAFKvFWYYAA4rUKMQvV3K43GEtGgMzPK4LyjdoxosqfpTMnLm3HPoy0kSmreNHr8rHLmUbdmEjTr27PrKdMcXKezsMqvvA5lJYRssRW2rTopUrlv+xCfoemJhBqXJdvgHXmml//zQMQLFun66j/MQAKAEDBrtO7Gs6wYd04SB8vknYBK9xe/kOz/yBT/PFK2Ti4dQ/msQOWWbSty+v76+nveb+K6mGmJhvmNOJvqN2yBw5xsq0zWAioijxD//+lQYKWGmp/ipbRYKR6+//NCxAoV8TLqPnpRBoSUQE/4uSY5QKqji6IfT7uXNK2uuBiFh3hvH2Tbc5cEGs5GHSX12whr3b/Q6/k74RV3xDNkHxaTdBhb5BnyaJsDgBBlZz////TiyGbFuVKQAAFbQKGaFAhh8C/L//NAxA4XWSbKnnpHBNENIQiyDO9dFiHKrez8EML1fDwPxa/wZ6HT8oJAzHrk4MxjMUDIpKBApbu3m7K0QhXwAh5ZHoFxcCGgXBAQBAyq2kP2qFYwwtf/////1FEqZpFVt4QVzLICgRz/80LECxYSPtX2eYUCj0SLiGvXXbFCLTGO5vTbL+8L+jcdPn8zfyAq/0iVlOIbAH1RHovRHzmUrIxv//6fKjGWaiJv9nps7UMYmn2Egkc////oFg6BA4YB8+NqUYMpojU92+EG4GF2Eqf/80DEDheSZtb+ekSsSiU56gqnLOTCPIr1CWwCSNhWgsavoUE8msTbnVQwylvCiUlL0vRzdDs0zIqs2lnIX///VitQpWeyMxkPTfqWXdivZlkyKLFi4WTPu///3UqqNMJ2kJqAWpBUtf/zQsQKFHNewMpoTR0YoOsyS3S+qt0dp//v//z///z3////8pvN//you+Ia+mOiY61ZC833C7MU0tdYhduVhjuTIfL28KVsGIY6exBkkyk7BFSwjj4O7bSWy0AOMeZypdYVmdioyG6XXv/zQMQUE/te9l4QDavqXd2a7sdqVbSlj1c90sd19LrJWXdqycnZ2852v8zPPajF4xdIVQFSL7Yd2IUzpHpXRvfLr5XvXhbIr7EA262ZeH32ugMFPWldEBgHjZ06EZkjGpVgZIv9it6E//NCxB8UOR7XHAGGJAwbuRZO6G2cJBiGqFQqoxzi2lykwMdXgm6xjZ3apD8XXWocq9b/GS1S0orgXWLgYw8eAHiH29skk5B+UHCggkpDeW+ltcpuac4sIiCJe3PIO6BmpqXVDvUCbTwW//NAxCoUGObm/AGGOg2SkhcPHxpVTnNhioDy55caAhMEU6bDy2MZIxQWLyNJRFG729X9NQCqupiZf//ayC9sfYqWEgr5tXcHzveiBkskXOdhFeWFqo94LuuRc6bVquIpYhaSmh3pPHj/80LENBOpNxceAxAukLIEhfsp/W44oBF7yXfGajYU9B6Jfd/8jy1iAGVpklRZk1DI18BUQIcsDfHz4kaqPGm+YLSdGc/kqLV5mcqXn90Uw1U9wK4Kw7seSRLHjzu5q3ZI8SnaCMseOnn/80DEQROw9q78AEwgQd+Giq3Sp274ld5GyG7A0CHydxVaKkvVZlbN5GOImkgsqqo0FRau8kcZyJzFqpyMEi0tQFTsqRErBYkFTomNa0Hq9bl6wFcPOgqgOw0qiSRqfEWs7yXy31kslf/zQsRNEyjiWKwKTDQCKEaoZMstjkZMoYFUcjUMFBhA8aCvULM6m4t/ULCpkyCwuRMgIJCMyZGC/3RZv9YpxYV/rbxTiotxRqpMQU1FMy4xMDCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqv/zQMRcDsh1yEQYxqCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", "два": "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", "три": "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", "четыре": "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", "и": "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA//NwwAAAAAAAAAAAAEluZm8AAAAPAAAADAAABZwAMjIyMjIyMjJFRUVFRUVFRVhYWFhYWFhYampqampqampqfX19fX19fX2QkJCQkJCQkKKioqKioqKiorW1tbW1tbW1yMjIyMjIyMja2tra2tra2trt7e3t7e3t7f//////////AAAAAExhdmM2MC4zMQAAAAAAAAAAAAAAACQDfgAAAAAAAAWcHeIXVwAAAAAAAAAAAAAAAAD/80DEAA/wPmhVTxAAIrFCsYDkJwdC5FfBThzqYI+GGccisZAiXflwx6wfP+CDvDEHwf/iA4r9YfWD/OYYEgIcEP/BA5ZE7wf//KO4YQAA79//9/vZUExKfJ6+NLyQmVEbnvjEKgkiYv/zQsQbG0o22l+YKAATm8wblF6qnIcHHEBwgcFAcjXH2IrLtoyS57WWdG2PuRVQco/SdXTz888UKPuqUYlNhh3PVf6i4eYUM2zvSOZ3SOlHpJ7Gl0p5YpczKv/5cX/1qiEHL//gBMaWrP/zQMQJFon2xlPYQADENDfViwJS3CYtLO0r1s2tbxxeXG7tu8xamgcAKtZaVWQ6zkB9f9/vF/MfuKHXaC4rdu39O24uVOhgw75tfuG7f+6FGIctDId2scY5Rr3///XVZqmt+sKQvDEL//NCxAkVmermXHrFAhkkYIksRgEABhi9xVuKQPRwweO9l+pDx15rCZsm6ICVvsLuELyG4Tp85eEFPiDZzGzs+UUbBmehH/+msp8DOHCbBTs/3kT7yB/0KN1SajByTarMzFEOYD7urpCO//NAxA4XOfbfHsPEXCr1SuZCO3+8oIkyNPwwxSp9QiYT774lBxb03lzdY79RW3lSQ9fakfu2pvXhArcT19S50NnM+n/fXMTIrqFUhChA8LX/dZlvx5wTuUpy0isgME2Iq1gBAcA/rGD/80LEDBa52s8eesTIB6Rbg/LYC2n+x3viYlvUY5XLWikDRy8eAntsXk47KA7W+bkfq3L78I+gAK1Nq5eHEtUd8itRi9nsyJykg5cJPd/63ufIr8WA6yZ64jwX0AAVoiLmgA/hOSgACiL/80DEDRXp8sJ8o8Q8DfIggLxljZL7HYLxQ5nc2zDmi+AT5m9oZxR9WS1vo4E6QRn0f/9+CCtQQap26GzoaeVt+5Wa9F0YzzFcw0Modr7vo/2TFhRUW9VNIKddmeKU3GwP9wBHZt0GgP/zQsQQFBG+2n57BJI1ZvKMKQ9oKrOafkhqLAcGDnJRqtFYvdOXEFKIMWX/p/oVqAAlp06Lg0eoZeZ09FRpXg2Ex9poSDgMT/V/7/ySlQAVJJvWnLaBSUOUAfD1wA4AtZJJuo4VNUko7f/zQMQbFBniwl6CBj4QVNhV8xdaokRS///y2OeyksPVZm1Xb/6pa3jNr/5t5q1KATA1K3AjyRKe/li1/5Gp8RHiMioXoIoAEKqFQAIpZ3D6CVsT2L24DIxo1eLXlulOKz3vUetGgdQh//NCxCUUcbJsVtJGVE7zs2h/2Izk+FgMSDCCjAc2DCcsqFLpMYVtdibOyXlzpUBfUeeXDShY0sd4nhkxFJBNCDhyA/g1JAkGkVhrVMJ9rAJEjGkYqyNL1I12pUTqKhICkBwdJHhIBRUN//NAxC8SWKZECHmGiAUeFAqCp5awlEU8WDSzudWMDra4TOrd5X/ytZCo6pPIoiEaOF0DbmmVlQaGRkayVDJlDAwaORq1k//sll7LIZHz+7GKGCgwgeeoXFaxUWP1C7P/9AVFGv/ZrFT/80LEQBFxTbgCSMS4W//F2axZTEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVU="}</script>
+<script id="app">
+const $=s=>document.getElementById(s);
+const g=(s,st)=>{const r=[];[...s.replace(/ /g,'')].forEach((c,i)=>{if(c!='.')r.push([i*st,c=='X',st])});return r};
+const e=(a,off)=>a.map((s,i)=>[s,off?s%1!=0:s%1==0,(a[i+1]??4)-s]);
+const H=.5,T=1/3,S=.25,X=1/6;
+const EX=[
+{t:'Четверти',l:[60,80,100],p:[['Все четверти',g('Xxxx',1)],['Только 1 и 3',g('X.x.',1)],['Только 2 и 4',g('.X.X',1)],['1 2 – 4, пауза на 3',g('Xx.x',1)],['Только 1',g('X...',1)]]},
+{t:'Восьмые',l:[60,80,100],p:[['Сплошные восьмые',g('Xxxxxxxx',H)],['Только «и»',g('.X.X.X.X',H)],['Пауза на «и» 2 и 4',g('Xxx.xxx.',H)],['1 и 2 – 3 и 4 –',g('Xxx.Xxx.',H)],['Пауза на 3',g('Xxxx.xxx',H)]]},
+{t:'Шестнадцатые',l:[50,65,80],p:[['Сплошные: 1 е и а',g('Xxxx xxxx xxxx xxxx',S)],['1 е и – (три и пауза)',g('Xxx. Xxx. Xxx. Xxx.',S)],['1 – и а',g('X.xx X.xx X.xx X.xx',S)],['Только «е» и «а»',g('.X.X .X.X .X.X .X.X',S)],['16-е на 1 и 3, 8-е на 2 и 4',g('Xxxx x.x. xxxx x.x.',S)]]},
+{t:'Восьмые триоли',l:[50,65,80],p:[['Сплошные триоли',g('Xxx Xxx Xxx Xxx',T)],['Шаффл: 1 – а',g('X.x X.x X.x X.x',T)],['1 и – (две из трёх)',g('Xx. Xx. Xx. Xx.',T)],['– и а',g('.xx .xx .xx .xx',T)],['2 доли триолей, 2 доли шаффла',g('Xxx Xxx X.x X.x',T)]]},
+{t:'Шестнадцатые триоли',l:[40,50,60],p:[['Шесть на долю',g('Xxxxxx Xxxxxx Xxxxxx Xxxxxx',X)],['3+3',g('XxxXxx XxxXxx XxxXxx XxxXxx',X)],['2+2+2',g('XxXxXx XxXxXx XxXxXx XxXxXx',X)],['Три и пауза',g('Xxx... Xxx... Xxx... Xxx...',X)],['Через одну (как 8-е триоли)',g('X.x.x. X.x.x. X.x.x. X.x.x.',X)]]},
+{t:'Ноты с точкой',l:[60,75,90],p:[['Четверть с точкой + восьмая',e([0,1.5,2,3.5])],['3+3+2',e([0,1.5,3])],['Восьмая с точкой + 16-я',e([0,.75,1,1.75,2,2.75,3,3.75])],['Восьмая + четверть с точкой',e([0,.5,2,2.5])],['16-я + восьмая с точкой',e([0,.25,1,1.25,2,2.25,3,3.25])],['Половинная с точкой + четверть',e([0,3])]]},
+{t:'Ноты с двумя точками',l:[50,60,70],p:[['Четверть с 2 точками + 16-я',e([0,1.75,2,3.75])],['16-я + четверть с 2 точками',e([0,.25,2,2.25])],['Восьмая с 2 точками + 32-я',e([0,.875,1,1.875,2,2.875,3,3.875])],['Половинная с 2 точками + восьмая',e([0,3.5])],['Четверть с 2 точками + 16-я, две четверти',e([0,1.75,2,3])]]},
+{t:'Синкопа',l:[60,75,90],p:[['Только «и» всех долей',g('.X.X.X.X',H)],['1, 1и, 2и, 3, 4',e([0,.5,1.5,2,3],1)],['1, 2и, 3и, 4и',e([0,1.5,2.5,3.5],1)],['1, 2, 3и, 4и',e([0,1,2.5,3.5],1)],['3-3-3-3-4 шестнадцатыми',e([0,.75,1.5,2.25,3],1)]]}
+];
+const B=[];EX.forEach((x,xi)=>x.p.forEach((p,pi)=>x.l.forEach((v,ti)=>B.push({xi,pi,ti,bpm:v}))));
+let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,GM:false,S:60,CAL:0,CALD:false,OUT:'',MIC:'',HI:0,best:{},O:{c:0,t:0,n:0,v:0}};
+try{const s=JSON.parse(localStorage.getItem('rt2')||'{}');if(s.opt)Object.assign(opt,s.opt);if(Number.isInteger(s.cur)&&B[s.cur])cur=s.cur;shift=Number(s.shift)||0}catch(_){}
+const save=()=>{try{localStorage.setItem('rt2',JSON.stringify({cur,shift,opt}))}catch(_){}};
+const bpmOf=i=>Math.max(30,Math.min(240,B[i].bpm+shift));
+const find=(xi,pi,ti)=>B.findIndex(b=>b.xi==xi&&b.pi==pi&&b.ti==ti);
+
+function click(t,f,v){const o=ctx.createOscillator(),a=ctx.createGain();o.frequency.value=f;a.gain.setValueAtTime(v,t);a.gain.exponentialRampToValueAtTime(.001,t+.04);o.connect(a);a.connect(out);o.start(t);o.stop(t+.05)}
+function note(t,acc){const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),a=ctx.createGain();o.type='sawtooth';o.frequency.value=164.81;f.type='lowpass';f.frequency.setValueAtTime(1800,t);f.frequency.exponentialRampToValueAtTime(250,t+.15);a.gain.setValueAtTime(acc?.5:.3,t);a.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(f);f.connect(a);a.connect(nb);o.start(t);o.stop(t+.25)}
+
+let nb,bq=[],vt=[],vox=null;const SS=window.speechSynthesis,VW=['раз','два','три','четыре'];
+function pickVoice(){if(!SS){$('vst').textContent='Голос недоступен в этом браузере';return}
+ const v=SS.getVoices().filter(x=>/^ru/i.test(x.lang));vox=v.find(x=>/Milena|Yuri|Katya/i.test(x.name))||v[0]||null;
+ $('vst').textContent=vox?'Голос: '+vox.name:'Русский голос не найден, добавьте его в настройках macOS'}
+if(SS)SS.onvoiceschanged=pickVoice;
+const VB={};let vs=null;const full=()=>Object.keys(VB).length==5;
+const ac=()=>ctx||(ctx=new (window.AudioContext||window.webkitAudioContext)());
+const db=()=>new Promise((ok,no)=>{const r=indexedDB.open('rt',1);r.onupgradeneeded=()=>r.result.createObjectStore('v');r.onsuccess=()=>ok(r.result);r.onerror=()=>no()});
+async function putV(k,buf){try{(await db()).transaction('v','readwrite').objectStore('v').put(buf,k)}catch(_){}}
+const PC={};
+function pcenter(b){const d=b.getChannelData(0),sr=b.sampleRate,n=Math.round(.02*sr),h=Math.round(.005*sr),T=[];
+ for(let f=250;f<1000;f+=50){const om=2*Math.PI*f/sr,c=new Float32Array(n),s=new Float32Array(n);for(let i=0;i<n;i++){const w=.5-.5*Math.cos(2*Math.PI*i/(n-1));c[i]=w*Math.cos(om*i);s[i]=w*Math.sin(om*i)}T.push([c,s])}
+ const E=[];for(let o=0;o+n<=d.length;o+=h){let p=0;for(const [c,s] of T){let re=0,im=0;for(let i=0;i<n;i++){const x=d[o+i];re+=x*c[i];im+=x*s[i]}p+=re*re+im*im}E.push(10*Math.log10(p+1e-12))}
+ const th=Math.max(...E)-3;let best=-1,bl=0,i=0;while(i<E.length){if(E[i]>=th){let j=i;while(j<E.length&&E[j]>=th)j++;if(j-i>bl){bl=j-i;best=i}i=j}else i++}
+ return best<0?0:Math.round((best*h+n/2)/sr*1000)}
+async function decodeV(k,buf,auto){try{const b=await ac().decodeAudioData(buf.slice(0)),d=b.getChannelData(0);let i=0;while(i<d.length&&Math.abs(d[i])<.02)i++;i=Math.max(0,i-Math.round(b.sampleRate*.003));const o=ac().createBuffer(1,Math.max(1,b.length-i),b.sampleRate);o.copyToChannel(d.slice(i),0);VB[k]=o;PC[k]=pcenter(o);if(auto||opt.O[k]===undefined)opt.O[k]=-PC[k]}catch(_){}}
+async function loadV(){try{const st=(await db()).transaction('v').objectStore('v'),r=await Promise.all([...VW,'и'].map(k=>new Promise(ok=>{const q=st.get(k);q.onsuccess=()=>ok([k,q.result]);q.onerror=()=>ok([k])})));for(const [k,b] of r)if(b)await decodeV(k,b)}catch(_){}vstat()}
+function vstat(){const n=Object.keys(VB).length;$('vst2').textContent=full()?'Точный голос загружен':n?'Загружено слов: '+n+' из 5':'Сейчас голос браузера, он неточный по времени. Как подключить точный голос — ниже.';$('vst').style.display=full()?'none':'';[...VW,'и'].forEach(w=>{const r=$('tw'+w);if(r)r.style.display=VB[w]?'contents':'none'});syncTune()}
+function say(t,txt){if(!opt.V)return;
+ if(full()){const s=ctx.createBufferSource(),g=ctx.createGain();if(vs){vs.g.gain.setValueAtTime(vs.v,Math.max(ctx.currentTime,t-.02));vs.g.gain.linearRampToValueAtTime(0,t)}const gv=opt.G/100;g.gain.value=gv;s.buffer=VB[txt];s.connect(g);g.connect(out);s.start(t);vs={g,v:gv};return}
+ if(!SS)return;if(vt.length>64)vt=vt.slice(-32);
+ vt.push(setTimeout(()=>{const u=new SpeechSynthesisUtterance(txt);u.lang='ru-RU';if(vox)u.voice=vox;u.rate=1.5;SS.cancel();SS.speak(u)},Math.max(0,(t-ctx.currentTime)*1000-opt.D)))}
+function killVoice(){vt.forEach(clearTimeout);vt=[];vs=null;if(SS)SS.cancel()}
+let nv=[],pv=[],bh=[],det=null,mode='',tbs=0,fbs=0,trkLat=0,xq=[],gs=null,R=null,score=0,combo=0,mic=null,proc=null,lv=0,lastOn=0,hist=[0,0,0,0,0,0],cal=null,inPlay=false;
+const thr=()=>.002*Math.pow(50,(100-opt.S)/100);
+const acc=s=>s?Math.max(0,(s.p+.6*s.g-.3*s.x)/Math.max(1,s.n)*100):0;
+const flash=(t,c)=>{const e=$('fb');e.className='';void e.offsetWidth;e.className=c;e.textContent=t};
+const mult=()=>1+Math.min(3,combo>>3);
+const fmt=t=>{t=Math.max(0,Math.round(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+const bdur=i=>(opt.L+opt.P+(opt.GM?1:0))*240/bpmOf(i);
+function prog(it,f){let tot=0,el=0;for(let i=0;i<B.length;i++){const d=bdur(i);tot+=d;if(i<cur)el+=d}
+ if(it&&it.bi==cur&&it.k>=0)el+=(it.k+f)*4*it.spb;
+ $('pgf').style.width=(tot?el/tot*100:0)+'%';$('pgt1').textContent='Прошло '+fmt(el);$('pgt2').textContent='Осталось '+fmt(tot-el);$('pgt3').textContent='Всего '+fmt(tot);$('pgt4').textContent='Урок '+(cur+1)+' из '+B.length}
+function onset(t){
+ if(cal){cal.on.push(t);return}
+ if(!opt.GM||!playing)return;
+ const ot=t-lat()/1000;let b=null,dd=.13;
+ for(const e of xq)if(!e.d){const d=Math.abs(e.t-ot);if(d<dd){dd=d;b=e}}
+ if(!b){if(inPlay&&gs)gs.x++;pv.push({t:ot,r:inPlay?'x':'o'});return}
+ b.d=1;const dv=(ot-b.t)*1000;b.s.d.push({d:dv,u:b.u});
+ if(dd>.09){b.r=ot<b.t?'e':'l';pv.push({t:ot,r:b.r,e:b,d:dv});b.s.m++;combo=0;flash(ot<b.t?'Рано':'Поздно','bad');return}
+ const pf=dd<=.045;b.r=pf?'p':'g';pv.push({t:ot,r:b.r,e:b,d:dv});if(pf)b.s.p++;else b.s.g++;combo++;score+=(pf?100:50)*mult();flash(pf?'Идеально':'Хорошо','ok')}
+function result(bi){if(R&&R.gs===gs)return R;const a=acc(gs),st=a>=90?3:a>=75?2:a>=60?1:0;R={gs,a,st};if(st){score+=Math.round(a*st*5);if(st>(opt.best[bi]||0))opt.best[bi]=st}opt.HI=Math.max(opt.HI||0,score);save();return R}
+function endBlock(bi){if(!gs||!gs.n)return'next';return result(bi).st?'next':'again'}
+const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
+function stats(d){const n=d.length;if(!n)return null;const m=avg(d);let s2=0,s3=0,s4=0;for(const x of d){const e=x-m;s2+=e*e;s3+=e*e*e;s4+=e*e*e*e}const v=s2/n,sd=Math.sqrt(v);return{n,m,sd,sk:sd?s3/n/(sd*v):0,ku:sd?s4/n/(v*v)-3:0}}
+let tmG=null,tmN=-1;
+function tmUpd(){const g=gs,n=g?g.d.length:0;if(g===tmG&&n===tmN)return;tmG=g;tmN=n;
+ const d=g?g.d.map(x=>x.d):[],st=stats(d),bins=new Array(21).fill(0);
+ d.forEach(x=>{const j=Math.round(x/10)+10;if(j>=0&&j<21)bins[j]++});const mx=Math.max(1,...bins);
+ document.querySelectorAll('#hg i').forEach((e,j)=>e.style.height=bins[j]/mx*100+'%');
+ if(!st){$('tm').textContent='Тайминг: пока нет данных';return}
+ const f1=x=>(x>0?'+':'')+x.toFixed(0);
+ let t=`Нот: ${st.n}<br>Сдвиг μ: ${f1(st.m)} мс, ${Math.abs(st.m)<5?'ровно':st.m<0?'торопитесь':'отстаёте'}<br>Разброс σ: ${st.sd.toFixed(0)} мс, ${st.sd<10?'очень кучно':st.sd<20?'нормально':'хаотично'}`;
+ if(st.n>=12){t+=`<br>Эксцесс: ${st.ku.toFixed(1)}, ${st.ku>1?'собранно':st.ku>-.5?'обычно':'размазано'}`;if(st.n>=16)t+=`<br>Форма: ${(st.sk*st.sk+1)/(st.ku+3)>.555?'два горба':'один горб'}`}
+ const dn=g.d.filter(x=>!x.u).map(x=>x.d),up=g.d.filter(x=>x.u).map(x=>x.d);
+ if(dn.length>=4&&up.length>=4){const a=avg(dn),b=avg(up);t+=`<br>На долю ${f1(a)} мс, на «и» ${f1(b)} мс${Math.abs(a-b)>15?', штрихи звучат неодинаково':''}`}
+ $('tm').innerHTML=t}
+function hudUpd(){const s=gs||{p:0,g:0,m:0,x:0},j=s.p+s.g+s.m;$('hl').textContent=(cur+1)+' из '+B.length;$('hs').textContent=score;$('hc').textContent='x'+mult()+', серия '+combo;$('ha').textContent=j?Math.round(Math.max(0,(s.p+.6*s.g-.3*s.x)/j*100))+'%':'-';$('hst').textContent=Object.values(opt.best).reduce((a,b)=>a+b,0)+' из '+B.length*3;$('hh').textContent=Math.max(opt.HI||0,score);tmUpd()}
+function gameTick(it,now){
+ xq=xq.filter(e=>{if(!e.d&&e.t<now-.2){e.d=1;e.r='m';e.s.m++;combo=0;flash('Мимо','bad')}return e.t>now-1});
+ if(gs&&gs.n&&it.k==opt.L+opt.P&&now-it.t>.25){const r=result(it.bi);if(!r.shown){r.shown=1;flash(r.st?'Пройдено '+'★'.repeat(r.st)+' '+Math.round(r.a)+'%':'Не пройдено '+Math.round(r.a)+'%, ещё раз',r.st?'ok':'bad')}}
+ hudUpd();draw(now,it.spb)}
+class Det{constructor(sr,post){this.sr=sr;this.post=post;this.n=Math.round(sr*.06);this.buf=new Float32Array(this.n);this.env=0;this.rel=Math.exp(-1/(sr*.012));this.k=Math.round(sr*.012);this.pk=0;this.pf=0;this.w=-1;this.rf=0;this.last=-1e9;this.thr=.01}
+ feed(x,f0){const T=this.thr,n=this.n;for(let j=0;j<x.length;j++){const F=f0+j,a=x[j]<0?-x[j]:x[j];this.env=a>this.env?a:this.env*this.rel;this.buf[F%n]=this.env;
+  if(this.w<0){const r=this.buf[(F-this.k+n)%n]||0;if(this.env>T&&this.env>r*1.8&&F-this.last>this.sr*.07){this.w=F+Math.round(this.sr*.006);this.pk=this.env;this.pf=F;this.rf=r}}
+  else{if(this.env>this.pk){this.pk=this.env;this.pf=F}
+   if(F>=this.w){const lim=Math.max(this.pk*.15,T*.3,this.rf*1.15),km=n-2-(F-this.pf);let g=this.pf,k=0;while(k<km&&this.buf[g%n]>=lim){g--;k++}if(k>=km)g=this.pf-Math.round(this.sr*.002);this.last=this.pf;this.post(g,this.pk);this.w=-1}}}}}
+const WK=Det.toString()+`registerProcessor('od',class extends AudioWorkletProcessor{constructor(){super();this.d=new Det(sampleRate,(f,p)=>this.port.postMessage({f,p}));this.c=0;this.port.onmessage=e=>{this.d.thr=e.data.thr}}process(i){const x=i[0][0];if(x){this.d.feed(x,currentFrame);if(++this.c%20==0)this.port.postMessage({l:this.d.env})}return true}});`;
+const sendThr=()=>{if(proc&&proc.port)proc.port.postMessage({thr:thr()});if(det)det.thr=thr()};
+function lat(){if(opt.CALD)return opt.CAL;return Math.round(((ctx&&(ctx.outputLatency||ctx.baseLatency))||0)*1000+trkLat)}
+function latUpd(){$('lst').textContent='Задержка выход+вход: '+lat()+' мс ('+(opt.CALD?'по калибровке':'оценка браузера, лучше откалибровать')+'). Детектор: '+(mode=='worklet'?'AudioWorklet, ожидаемая точность 1–2 мс':mode=='script'?'ScriptProcessor, точность около 6 мс':'выключен')}
+async function micOn(){micOff();try{
+ const st=await navigator.mediaDevices.getUserMedia({audio:{deviceId:opt.MIC?{exact:opt.MIC}:undefined,echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1,latency:0}});
+ const c=ac();await c.resume();mic=c.createMediaStreamSource(st);mic.st=st;trkLat=(st.getAudioTracks()[0].getSettings().latency||0)*1000;const z=c.createGain();z.gain.value=0;
+ try{const u=URL.createObjectURL(new Blob([WK],{type:'application/javascript'}));await c.audioWorklet.addModule(u);proc=new AudioWorkletNode(c,'od');
+  proc.port.onmessage=e=>{const m=e.data;if(m.f!=null)onset(m.f/c.sampleRate,m.p);if(m.l!=null)lv=m.l};mode='worklet'}
+ catch(_){det=new Det(c.sampleRate,g=>onset(tbs+(g-fbs)/c.sampleRate));let fc=0;proc=c.createScriptProcessor(256,1,1);
+  proc.onaudioprocess=e=>{const d=e.inputBuffer.getChannelData(0);tbs=e.playbackTime-d.length/c.sampleRate;fbs=fc;det.thr=thr();det.feed(d,fc);fc+=d.length;lv=det.env};mode='script'}
+ mic.connect(proc);proc.connect(z);z.connect(c.destination);sendThr();
+ const dv=await navigator.mediaDevices.enumerateDevices(),outs=dv.filter(x=>x.kind=='audiooutput');
+ $('min').innerHTML=dv.filter(x=>x.kind=='audioinput').map(x=>`<option value="${x.deviceId}">${x.label||'Вход'}</option>`).join('');if(opt.MIC)$('min').value=opt.MIC;
+ if(c.setSinkId&&outs.length){$('lout').style.display='flex';$('mout').innerHTML=outs.map(x=>`<option value="${x.deviceId}">${x.label||'Выход'}</option>`).join('');if(opt.OUT){$('mout').value=opt.OUT;c.setSinkId(opt.OUT).catch(()=>{})}}
+ $('mst').textContent='Вход включён. Сыграйте ноту: полоска справа должна заходить за метку.';latUpd()}
+ catch(e){micOff();opt.GM=false;$('ogm').checked=false;$('hud').hidden=true;$('mst').textContent='Вход недоступен ('+(e.name||e)+'). Если страница открыта внутри Claude, сохраните её как файл и откройте файл в Chrome.'}}
+function sizeCv(rw){const c=$('cv'),dp=devicePixelRatio||1;c.dataset.w=rw;c.width=Math.round(rw*dp);c.height=Math.round(150*dp);c.getContext('2d').setTransform(dp,0,0,dp,0,0)}
+function draw(now,spb){const c=$('cv'),g=c.getContext('2d'),W=Math.round(c.getBoundingClientRect().width),H=150;if(!W)return;if(c.dataset.w!=W)sizeCv(W);
+ g.clearRect(0,0,W,H);const S=getComputedStyle(document.documentElement),col=n=>S.getPropertyValue(n).trim();
+ now-=(ctx&&(ctx.outputLatency||ctx.baseLatency))||0;
+ const span=6*spb,nx=.28*W,pps=W/span,X=t=>nx+(t-now)*pps,y1=44,y2=108;
+ nv=nv.filter(n=>n.t>now-6);pv=pv.filter(p=>p.t>now-6);bh=bh.filter(b=>b.t+4*b.spb>now-6);
+ const bars=bh.slice();if(bars.length){const l=bars[bars.length-1];for(let t=l.t+4*l.spb;t<now+span;t+=4*l.spb)bars.push({t,spb:l.spb})}
+ for(const b of bars)for(let i=0;i<8;i++){const x=X(b.t+i*b.spb/2);if(x<0||x>W)continue;g.globalAlpha=i==0?.7:i%2==0?.4:.25;g.fillStyle=col(i==0?'--fg':'--mut');g.fillRect(x-(i==0?1:.5),0,i==0?2:1,H)}
+ g.globalAlpha=1;
+ for(const n of nv){const x=X(n.t);if(x<-20||x>W+20)continue;
+  if(n.e){g.globalAlpha=.16;g.fillStyle=col('--lis');g.fillRect(X(n.t-.09),y1-18,.18*pps,36);g.fillStyle=col('--ok');g.fillRect(X(n.t-.045),y1-18,.09*pps,36)}
+  const rc=n.e?n.e.r:'';g.globalAlpha=n.e?1:.35;g.lineWidth=2;g.strokeStyle=col(rc=='m'?'--need':rc=='p'||rc=='g'?'--ok':rc=='e'||rc=='l'?'--lis':'--fg');g.fillStyle=g.strokeStyle;
+  g.beginPath();g.arc(x,y1,n.a?11:8,0,7);if(n.a||rc)g.fill();else g.stroke()}
+ g.globalAlpha=1;
+ for(const p of pv){const x=X(p.t),cc=col(p.r=='p'||p.r=='g'?'--ok':p.r=='x'?'--need':p.r=='o'?'--mut':'--lis');
+  if(p.e){g.strokeStyle=cc;g.lineWidth=2;g.beginPath();g.moveTo(X(p.e.t),y1+12);g.lineTo(x,y2-12);g.stroke()}
+  g.fillStyle=cc;g.beginPath();g.moveTo(x,y2-11);g.lineTo(x+9,y2);g.lineTo(x,y2+11);g.lineTo(x-9,y2);g.fill();
+  if(p.d!=null){g.fillStyle=col('--fg');g.font='11px system-ui';g.textAlign='center';g.fillText((p.d>0?'+':'')+Math.round(p.d),x,y2+26)}}
+ g.fillStyle=col('--need');g.fillRect(nx-1,0,2,H);g.fillStyle=col('--mut');g.font='12px system-ui';g.textAlign='left';g.fillText('Нужно',6,14);g.fillText('Сыграно',6,H-8)}
+function micOff(){try{if(mic)mic.st.getTracks().forEach(t=>t.stop());if(proc)proc.disconnect()}catch(_){}mic=proc=null;det=null;mode=''}
+function calib(){if(!mic){$('mst').textContent='Сначала включите игру';return}
+ stop();kill();const t0=ctx.currentTime+1.2,cl=[];for(let i=0;i<12;i++){const t=t0+i*.75;cl.push(t);click(t,i%4?1050:1600,.55)}
+ cal={on:[]};$('mst').textContent='Играйте любую ноту ровно на каждый щелчок (12 щелчков) или замкните выход интерфейса на вход кабелем';
+ setTimeout(()=>{const dl=[];for(const o of cal.on){let b=9;for(const x of cl)if(Math.abs(o-x)<Math.abs(b))b=o-x;if(Math.abs(b)<.4)dl.push(b)}cal=null;
+  if(dl.length<5){$('mst').textContent='Поймано мало нот ('+dl.length+' из 12), повторите';return}
+  dl.sort((a,b)=>a-b);const md=dl[dl.length>>1],mad=dl.map(x=>Math.abs(x-md)).sort((a,b)=>a-b)[dl.length>>1];
+  opt.CAL=Math.round(md*1000);opt.CALD=true;save();$('mst').textContent='Калибровка: '+opt.CAL+' мс, разброс '+Math.round(mad*1000)+' мс';latUpd()},11500)}
+async function loadE(){const D=JSON.parse($('vdata').textContent);for(const k in D){const t=atob(D[k]),u=new Uint8Array(t.length);for(let i=0;i<t.length;i++)u[i]=t.charCodeAt(i);await decodeV(k,u.buffer)}vstat()}
+const lvl=pl=>opt.N&&(!pl||opt.NP)?opt.NG/100:0;
+function applyBus(){if(!ctx||!nb)return;const now=ctx.currentTime,c=bq.find(x=>x.t0<=now&&now<x.t1);nb.gain.cancelScheduledValues(now);nb.gain.setValueAtTime(lvl(c?c.play:false),now);bq.filter(x=>x.t0>now).forEach(x=>nb.gain.setValueAtTime(lvl(x.play),x.t0))}
+function sched(){
+ const TOT=opt.L+opt.P+(opt.GM?1:0);
+ if(k>=TOT){
+  if(opt.GM){if(endBlock(sc)=='next'){if(sc<B.length-1)sc++;else{stop();return}}k=0}
+  else if(opt.loop)k=0;else if(sc<B.length-1){sc++;k=0}else{stop();return}
+ }
+ const b=B[sc],spb=60/bpmOf(sc),O=opt.O;
+ q.push({t:nextT,bi:sc,k,spb,tot:TOT});if(opt.GM)bh.push({t:nextT,spb});
+ for(let i=0;i<4;i++){click(nextT+i*spb,i?1050:1600,i?.4:.55);click(nextT+(i+.5)*spb,720,.12);say(nextT+i*spb+(O[VW[i]]||0)/1000,VW[i]);say(nextT+(i+.5)*spb+(O['и']||0)/1000,'и')}
+ if(k>=0&&k<opt.L+opt.P){const pl=k>=opt.L,ev=EX[b.xi].p[b.pi][1];bq=bq.filter(x=>x.t1>ctx.currentTime-1);bq.push({t0:nextT,t1:nextT+4*spb,play:pl});nb.gain.setValueAtTime(lvl(pl),nextT);
+  if(opt.GM&&pl&&(k==opt.L||!gs))gs={n:0,p:0,g:0,x:0,m:0,d:[]};
+  ev.forEach(([s,a])=>{const t=nextT+s*spb,e=opt.GM&&pl?{t,s:gs,u:Math.abs(s-Math.round(s))>.01}:null;if(e){gs.n++;xq.push(e)}if(opt.GM)nv.push({t,a,e});note(t,a)})}
+ nextT+=4*spb;k++;
+}
+function tick(){const la=Math.max(.4,360/bpmOf(sc));while(playing&&nextT<ctx.currentTime+la)sched()}
+function kill(){killVoice();if(out){out.gain.value=0;out.disconnect()}out=ctx.createGain();const cm=ctx.createDynamicsCompressor();cm.threshold.value=-6;cm.knee.value=6;cm.ratio.value=12;out.connect(cm);cm.connect(ctx.destination);nb=ctx.createGain();nb.connect(out);bq=[]}
+function start(c){
+ if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.resume();
+ if(opt.GM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-1:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
+ clearInterval(timer);timer=setInterval(tick,40);tick();$('bplay').textContent='Пауза (пробел)';
+}
+function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];$('bplay').textContent='Старт (пробел)';$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
+ document.querySelectorAll('.gr span').forEach(s=>s.classList.remove('now'));$('strip').classList.remove('mute');foot(0)}
+
+function drawStrip(p){
+ const ev=p[1],u=[.5,1/3,.25,1/6,.125].find(u=>ev.every(([s,a,d])=>[s,d].every(v=>Math.abs(v/u-Math.round(v/u))<1e-6)))||.125,N=Math.round(4/u),tri=Math.abs(u-1/3)<1e-6;
+ const lab=pos=>{const f=pos-Math.floor(pos+1e-6),n=Math.floor(pos+1e-6)+1;if(f<1e-6)return n;if(tri)return f<.5?'и':'';return Math.abs(f-.5)<1e-6?'и':''};
+ let h=`<div class="gr" style="grid-template-columns:repeat(${N},1fr)">`;
+ for(let i=0;i<N;i++){const pos=i*u;h+=`<span class="${Math.abs(pos-Math.round(pos))<1e-6?'bt':''}${tri?' tc':''}">${lab(pos)}</span>`}
+ h+='</div><div class="nt">';
+ for(let i=0;i<8;i++)h+=`<i class="${i%2?'':'b'}" style="left:${i*12.5}%"></i>`;
+ ev.forEach(([s,a,d])=>h+=`<b class="${a?'a':''}" style="left:${s/4*100}%;width:calc(${d/4*100}% - 3px)"></b>`);
+ h+='</div><div class="ft">';
+ for(let i=0;i<4;i++)h+=`<span class="d" style="left:${i*25}%">↓</span><span class="${tri?'c':''}" style="left:${i*25+12.5}%">↑</span>`;
+ $('strip').innerHTML=h+'</div><u id="ph" style="left:0%"></u>';
+}
+function showBlock(){
+ const b=B[cur],x=EX[b.xi];
+ $('sx').value=b.xi;
+ $('sp').innerHTML=x.p.map((p,i)=>`<option value="${i}">${i+1}. ${p[0]}</option>`).join('');$('sp').value=b.pi;
+ $('tempos').innerHTML=x.l.map((v,i)=>`<button class="chip${i==b.ti?' on':''}" data-t="${i}">${Math.max(30,v+shift)}</button>`).join('');
+ $('bpm').textContent=bpmOf(cur);
+ 
+ 
+ drawStrip(x.p[b.pi]);$('pname').textContent=x.t+'. '+x.p[b.pi][0];prog();save();
+}
+function frame(){
+ requestAnimationFrame(frame);if(!playing||!ctx)return;
+ const now=ctx.currentTime;while(q.length>1&&q[1].t<=now)q.shift();
+ const it=q[0];if(!it||it.t>now)return;
+ if(it.bi!=cur){cur=it.bi;showBlock()}
+ const f0=Math.min(1,(now-it.t)/(4*it.spb));prog(it,f0);foot(f0);inPlay=it.k>=opt.L&&it.k<opt.L+opt.P;if(opt.GM)gameTick(it,now);
+ const f=Math.min(1,(now-it.t)/(4*it.spb)),ph=$('ph');if(ph)ph.style.left=f*100+'%';
+ const lis=it.k>=0&&it.k<opt.L,P=$('phase');
+ const rs=it.k>=opt.L+opt.P;P.textContent=it.k<0?'Счёт':rs?'Итог':lis?'Слушай':'Играй';P.className=it.k<0||rs?'cnt':lis?'lis':'pl';
+ $('bars').textContent=it.k<0?'такт счёта':`такт ${it.k+1} из ${it.tot}`;
+ $('strip').classList.toggle('mute',!lis&&it.k>=0);
+ const gc=document.querySelectorAll('.gr span');gc.forEach((s,i)=>s.classList.toggle('now',i==Math.floor(f*gc.length)));
+}
+function go(i){cur=(i+B.length)%B.length;showBlock();if(playing)start(true)}
+function pat(d){const F=B.map((b,i)=>b.ti==0?i:-1).filter(i=>i>=0);const j=F.indexOf(cur-B[cur].ti);go(F[(j+d+F.length)%F.length])}
+function setShift(d){shift=Math.max(-30,Math.min(60,shift+d));showBlock();if(playing)start(true)}
+const toggle=()=>playing?stop():start(true);
+
+$('sx').innerHTML=EX.map((x,i)=>`<option value="${i}">${i+1}. ${x.t}</option>`).join('');
+$('sx').onchange=ev=>{go(find(+ev.target.value,0,0));ev.target.blur()};
+$('sp').onchange=ev=>{go(find(B[cur].xi,+ev.target.value,0));ev.target.blur()};
+$('tempos').onclick=ev=>{const t=ev.target.dataset.t;if(t!==undefined)go(find(B[cur].xi,B[cur].pi,+t))};
+$('bprev').onclick=()=>go(cur-1);$('bnext').onclick=()=>go(cur+1);$('brst').onclick=()=>{playing?start(true):start(true)};
+$('bplay').onclick=toggle;$('m5').onclick=()=>setShift(-5);$('p5').onclick=()=>setShift(5);
+document.addEventListener('click',ev=>{if(ev.target.tagName=='BUTTON')ev.target.blur()});
+$('oloop').checked=opt.loop;$('ocnt').checked=opt.count;$('oL').value=opt.L;$('oP').value=opt.P;
+$('oloop').onchange=ev=>{opt.loop=ev.target.checked;save()};$('ocnt').onchange=ev=>{opt.count=ev.target.checked;save()};
+$('oL').onchange=ev=>{opt.L=Math.max(0,Math.min(8,+ev.target.value||0));ev.target.value=opt.L;save()};
+$('oP').onchange=ev=>{opt.P=Math.max(1,Math.min(16,+ev.target.value||1));ev.target.value=opt.P;save()};
+$('ovoc').checked=opt.V;$('ovol').value=opt.G;$('ovolv').textContent=opt.G+'%';$('ovol').oninput=ev=>{opt.G=+ev.target.value;$('ovolv').textContent=opt.G+'%';save()};$('ovol').onchange=ev=>ev.target.blur();
+$('onote').checked=opt.N;$('onp').checked=opt.NP;$('onv').value=opt.NG;$('onvv').textContent=opt.NG+'%';
+$('onote').onchange=ev=>{opt.N=ev.target.checked;applyBus();save()};
+$('onp').onchange=ev=>{opt.NP=ev.target.checked;applyBus();save()};
+$('onv').oninput=ev=>{opt.NG=+ev.target.value;$('onvv').textContent=opt.NG+'%';applyBus();save()};$('onv').onchange=ev=>ev.target.blur();
+document.addEventListener('change',ev=>{if(ev.target.type=='checkbox')ev.target.blur()});
+$('ovoc').onchange=ev=>{opt.V=ev.target.checked;if(!opt.V)killVoice();save()};
+
+pickVoice();
+const TN=[...VW,'и'].map(w=>[w,'Голос «'+w+'»']);
+$('tune').innerHTML=TN.map(([k,n])=>`<div id="tw${k}" style="display:contents"><span style="color:var(--fg)">${n}</span><input type="range" id="r${k}" min="-300" max="100" step="5" value="${opt.O[k]||0}"><span id="rv${k}" style="min-width:64px;text-align:right;font-variant-numeric:tabular-nums"></span></div>`).join('');
+const fo=k=>{const v=opt.O[k]||0;$('rv'+k).textContent=(v>0?'+':'')+v+' мс'};
+TN.forEach(([k])=>{fo(k);const r=$('r'+k);r.oninput=ev=>{opt.O[k]=+ev.target.value;fo(k);save()};r.onchange=()=>r.blur();r.ondblclick=()=>{opt.O[k]=-(PC[k]||0);r.value=opt.O[k];fo(k);save()}});
+function syncTune(){[...VW,'и'].forEach(w=>{const r=$('r'+w);if(r){r.value=opt.O[w]||0;fo(w)}});save()}
+$('ta').onclick=()=>{[...VW,'и'].forEach(w=>{if(PC[w]!=null)opt.O[w]=-PC[w]});syncTune()};
+$('tz').onclick=()=>{TN.forEach(([k])=>{opt.O[k]=0});syncTune()};
+$('ogm').checked=opt.GM;$('hud').hidden=!opt.GM;$('osn').value=opt.S;hudUpd();if(opt.GM)$('mst').textContent='Нажмите Старт, чтобы включить вход';
+$('ogm').onchange=ev=>{opt.GM=ev.target.checked;$('hud').hidden=!opt.GM;hudUpd();if(opt.GM)micOn();else micOff();save()};
+$('osn').oninput=ev=>{opt.S=+ev.target.value;sendThr();save()};$('osn').onchange=ev=>ev.target.blur();
+$('min').onchange=ev=>{opt.MIC=ev.target.value;save();micOn()};$('bcal').onclick=calib;
+$('pgb').onclick=ev=>{const r=ev.currentTarget.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width,d=B.map((_,i)=>bdur(i)),tot=d.reduce((a,b)=>a+b);let a=0,i=0;for(;i<B.length-1;i++){if(a+d[i]>x*tot)break;a+=d[i]}go(i)};
+setInterval(()=>{$('lvf').style.width=Math.min(100,lv/(thr()*4)*100)+'%'},60);
+if(window.claude&&claude.use)claude.use('downloads').then(d=>{if(!d)return;const b=$('bsave');b.hidden=false;b.onclick=async()=>{const c=document.documentElement.cloneNode(true);c.querySelectorAll('script:not(#app):not(#vdata)').forEach(x=>x.remove());try{await d.save({filename:'ritm-trenazher.html',data:'<!doctype html>\n'+c.outerHTML})}catch(e){}}}).catch(()=>{});
+$('hg').innerHTML=Array.from({length:21},(_,j)=>{const c=Math.abs((j-10)*10);return `<i style="background:var(--${c<=45?'ok':c<=90?'lis':'need'})"></i>`}).join('');
+function foot(f){const p=(f*4)%1,h=.5-.5*Math.cos(2*Math.PI*p);$('ft').setAttribute('transform',`rotate(${-h*20} 26 34)`);$('fm').setAttribute('opacity',Math.max(0,1-Math.min(p,1-p)*8));$('fdir').textContent=h>.5?'↑':'↓'}
+$('mout').onchange=ev=>{opt.OUT=ev.target.value;save();if(ctx&&ctx.setSinkId)ctx.setSinkId(opt.OUT).catch(()=>{})};
+$('bauto').onclick=()=>{opt.CALD=false;save();latUpd()};latUpd();
+foot(0);loadE();
+addEventListener('keydown',ev=>{
+ if(ev.target.tagName=='INPUT'&&(ev.target.type=='number'||ev.target.type=='range'))return;
+ if(ev.metaKey||ev.ctrlKey||ev.altKey)return;
+ if((ev.code=='Enter'||ev.code=='NumpadEnter')&&ev.target.tagName=='BUTTON')return;
+ const c=ev.code,m={Space:toggle,Enter:()=>start(true),NumpadEnter:()=>start(true),ArrowLeft:()=>go(cur-1),ArrowRight:()=>go(cur+1),ArrowUp:()=>pat(-1),ArrowDown:()=>pat(1),
+ Minus:()=>setShift(-5),Equal:()=>setShift(5),NumpadSubtract:()=>setShift(-5),NumpadAdd:()=>setShift(5),
+ KeyL:()=>{opt.loop=!opt.loop;$('oloop').checked=opt.loop;save()},KeyN:()=>{opt.NP=!opt.NP;$('onp').checked=opt.NP;applyBus();save()}};
+ if(/^Digit[1-8]$/.test(c)){go(find(+c.slice(5)-1,0,0));ev.preventDefault();return}
+ if(m[c]){m[c]();ev.preventDefault()}
+});
+showBlock();requestAnimationFrame(frame);
+</script><script>if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))</script>
+</body></html>
