@@ -9,7 +9,7 @@ const fast = (extra = {}) => ({
 
 test.describe('планировщик и воспроизведение', () => {
   test('такт счёта и переход к следующему блоку', async ({ page }) => {
-    await boot(page, fast({ count: true }));
+    await boot(page, fast({ count: true, CB: 1 }));
     await page.locator('#bplay').click();
     await expect(page.locator('#bplay')).toHaveText('Пауза (пробел)');
     await expect(page.locator('#phase')).toHaveText('Счёт');
@@ -27,6 +27,35 @@ test.describe('планировщик и воспроизведение', () => 
     await expect(page.locator('#bpm')).toHaveText('120');
     await expect(page.locator('#pgt4')).toHaveText('Урок 4 из 123');
     await page.locator('#bplay').click();
+  });
+
+  test('два такта счёта идут «раз — два —», потом «раз, два, три, четыре»', async ({ page }) => {
+    await boot(page, fast({ count: true, CB: 2 }));
+    await page.locator('#bplay').click();
+    await expect(page.locator('#phase')).toHaveText('Счёт');
+    await expect(page.locator('#bars')).toHaveText('счёт 1 из 2');
+    const first = await page.evaluate(() => ({ k: q[0].k, tot: q[0].tot }));
+    expect(first.k).toBe(-2);
+    expect(first.tot).toBe(1);
+    await expect(page.locator('#bars')).toHaveText('счёт 2 из 2', { timeout: 6000 });
+    await expect(page.locator('#phase')).toHaveText('Играй', { timeout: 6000 });
+    await expect(page.locator('#bars')).toHaveText('такт 1 из 1');
+    await page.locator('#bplay').click();
+  });
+
+  test('в первом такте двухтактного счёта звучат только «раз» и «два»', async ({ page }) => {
+    await boot(page, fast({ count: true, CB: 2 }));
+    const log = await page.evaluate(() => {
+      if (!ctx) ac();
+      kill();
+      const orig = say, out = [];
+      say = (t, w) => out.push(w);
+      sc = 2; k = -2; nextT = ctx.currentTime + .1; playing = true;
+      sched(); sched();
+      playing = false; say = orig; k = 0;
+      return out;
+    });
+    expect(log).toEqual(['раз', 'два', 'раз', 'и', 'два', 'и', 'три', 'и', 'четыре', 'и']);
   });
 
   test('фазы Слушай, Играй и приглушение полосы', async ({ page }) => {
@@ -81,7 +110,7 @@ test.describe('планировщик и воспроизведение', () => 
     await expect(page.locator('#phase')).toHaveText('Стоп');
     await expect(page.locator('#bars')).toHaveText('');
     await expect(page.locator('#strip')).not.toHaveClass(/mute/);
-    await expect(page.locator('#ft')).toHaveAttribute('transform', 'rotate(0 26 34)');
+    await expect(page.locator('#lneedle')).toHaveAttribute('transform', 'translate(0 0)');
     await expect(page.locator('#ph')).toHaveAttribute('style', 'left:0%');
     const state = await page.evaluate(() => ({ playing, q: q.length, sc: sc }));
     expect(state.playing).toBe(false);
@@ -111,17 +140,22 @@ test.describe('планировщик и воспроизведение', () => 
   });
 
   test('start с countIn=false не включает такт счёта', async ({ page }) => {
-    await boot(page, fast({ count: true }));
+    await boot(page, fast({ count: true, CB: 2 }));
     const state = await page.evaluate(() => {
       start(true);
       const withCount = { q0: q[0] && q[0].k, playing };
       stop();
+      opt.CB = 1;
+      start(true);
+      const oneBar = { q0: q[0] && q[0].k, playing };
+      stop();
       start(false);
       const withoutCount = { q0: q[0] && q[0].k, playing };
       stop();
-      return { withCount, withoutCount };
+      return { withCount, oneBar, withoutCount };
     });
-    expect(state.withCount.q0).toBe(-1);
+    expect(state.withCount.q0).toBe(-2);
+    expect(state.oneBar.q0).toBe(-1);
     expect(state.withoutCount.q0).toBe(0);
     expect(state.withCount.playing).toBe(true);
     expect(state.withoutCount.playing).toBe(true);
@@ -151,7 +185,7 @@ test.describe('планировщик и воспроизведение', () => 
     await page.locator('#bplay').click();
   });
 
-  test('foot рисует удар вниз и вверх', async ({ page }) => {
+  test('foot качает маятник и ногу в логотипе', async ({ page }) => {
     await boot(page);
     const poses = await page.evaluate(() => {
       const out = [];
@@ -159,18 +193,17 @@ test.describe('планировщик и воспроизведение', () => 
         foot(f);
         out.push({
           f,
-          transform: document.getElementById('ft').getAttribute('transform'),
-          dir: document.getElementById('fdir').textContent,
-          opacity: document.getElementById('fm').getAttribute('opacity'),
+          needle: document.getElementById('lneedle').getAttribute('transform'),
+          boot: document.getElementById('lfoot').getAttribute('transform'),
         });
       }
       return out;
     });
-    expect(poses[0]).toMatchObject({ transform: 'rotate(0 26 34)', dir: '↓', opacity: '1' });
-    expect(poses[1]).toMatchObject({ transform: 'rotate(-20 26 34)', dir: '↑', opacity: '0' });
-    expect(poses[2]).toMatchObject({ transform: 'rotate(0 26 34)', dir: '↓', opacity: '1' });
-    expect(poses[3]).toMatchObject({ transform: 'rotate(-20 26 34)', dir: '↑', opacity: '0' });
-    expect(poses[4]).toMatchObject({ transform: 'rotate(0 26 34)', dir: '↓', opacity: '1' });
+    expect(poses[0]).toMatchObject({ needle: 'translate(0 0)', boot: 'translate(0 0)' });
+    expect(poses[1]).toMatchObject({ needle: 'translate(2 0)', boot: 'translate(0 -1)' });
+    expect(poses[2]).toMatchObject({ needle: 'translate(0 0)', boot: 'translate(0 0)' });
+    expect(poses[3]).toMatchObject({ needle: 'translate(-2 0)', boot: 'translate(0 -1)' });
+    expect(poses[4]).toMatchObject({ needle: 'translate(0 0)', boot: 'translate(0 0)' });
   });
 
   test('bdur добавляет такт итога только в игре', async ({ page }) => {

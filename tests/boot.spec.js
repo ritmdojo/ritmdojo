@@ -23,6 +23,7 @@ test.describe('загрузка и исходное состояние', () => {
     expect(state.opt).toMatchObject({
       loop: false,
       count: true,
+      CB: 2,
       L: 2,
       P: 4,
       V: true,
@@ -39,6 +40,7 @@ test.describe('загрузка и исходное состояние', () => {
       MIC: '',
       HI: 0,
       best: {},
+      rec: {},
     });
     expect(state.opt.O).toMatchObject({ c: 0, t: 0, n: 0, v: 0 });
     expect(await page.evaluate(() => B.length)).toBe(123);
@@ -72,12 +74,14 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#bplay')).toHaveText('Старт (пробел)');
     await expect(page.locator('#vscore')).toBeHidden();
     await expect(page.locator('#vset')).toBeHidden();
+    await expect(page.locator('#vhelp')).toBeHidden();
+    await expect(page.locator('#bhelp')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#bsave')).toHaveCount(0);
     expect(await page.evaluate(() => window.claude)).toBeUndefined();
     await expect(page.locator('#mst')).toHaveText('');
-    await expect(page.locator('#fdir')).toHaveText('↓');
-    await expect(page.locator('#ft')).toHaveAttribute('transform', 'rotate(0 26 34)');
-    await expect(page.locator('#fm')).toHaveAttribute('opacity', '1');
+    await expect(page.locator('#lneedle')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#lfoot')).toHaveAttribute('transform', 'translate(0 0)');
+    expect(await page.evaluate(() => document.querySelectorAll('#wm rect').length)).toBeGreaterThan(50);
     await expect(page.locator('#strip .gr span')).toHaveCount(8);
     await expect(page.locator('#strip .gr span.bt')).toHaveText(['1', '2', '3', '4']);
     await expect(page.locator('#strip .nt b')).toHaveCount(4);
@@ -103,6 +107,8 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#oloop')).not.toBeChecked();
     await expect(page.locator('#ocnt')).toBeChecked();
+    await expect(page.locator('#ocb')).toHaveValue('2');
+    await expect(page.locator('#ocb')).toBeEnabled();
     await expect(page.locator('#oL')).toHaveValue('2');
     await expect(page.locator('#oP')).toHaveValue('4');
     await expect(page.locator('#ovoc')).toBeChecked();

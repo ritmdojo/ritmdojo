@@ -60,7 +60,8 @@ test.describe('режим игры: вход и настройки', () => {
     expect(state.saved).toBe(true);
     await expect(page.locator('#ogm')).toBeChecked();
     await openTab(page, 'score');
-    await expect(page.locator('#hud')).toBeVisible();
+    await expect(page.locator('#rt')).toBeVisible();
+    await expect(page.locator('#hud')).toBeHidden();
     await expectNoErrors(errors);
   });
 
@@ -492,7 +493,8 @@ test.describe('режим игры: воспроизведение и калиб
     expect(state.bq).toBeGreaterThanOrEqual(1);
     expect(state.tot).toBe(2);
     await openTab(page, 'score');
-    await expect(page.locator('#hud')).toBeVisible();
+    await expect(page.locator('#rt')).toBeVisible();
+    await expect(page.locator('#hud')).toBeHidden();
     await expect(page.locator('#phase')).toHaveText('Играй');
     await openTab(page, 'play');
     await page.locator('#bplay').click();
@@ -642,7 +644,6 @@ test.describe('режим игры: воспроизведение и калиб
     await enableGame(page);
     await openTab(page, 'play');
     await page.locator('#bplay').click();
-    await openTab(page, 'score');
     await expect.poll(() => page.evaluate(() => document.getElementById('cv').dataset.w)).toBeTruthy();
     const canvas = await page.evaluate(() => {
       const c = document.getElementById('cv');
@@ -661,7 +662,6 @@ test.describe('режим игры: воспроизведение и калиб
       return alpha;
     });
     expect(painted).toBeGreaterThan(0);
-    await openTab(page, 'play');
     await page.locator('#bplay').click();
   });
 });

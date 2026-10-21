@@ -54,6 +54,21 @@ test.describe('настройки и сохранения', () => {
     expect((await readState(page)).opt.P).toBe(16);
   });
 
+  test('такт счёта: выбор одного или двух тактов и блокировка без счёта', async ({ page }) => {
+    await boot(page);
+    await openTab(page, 'settings');
+    await expect(page.locator('#ocb')).toHaveValue('2');
+    await expect(page.locator('#ocb')).toBeEnabled();
+    await page.selectOption('#ocb', '1');
+    expect((await readState(page)).opt.CB).toBe(1);
+    expect((await readState(page)).saved.opt.CB).toBe(1);
+    await page.locator('#ocnt').uncheck();
+    await expect(page.locator('#ocb')).toBeDisabled();
+    await page.locator('#ocnt').check();
+    await expect(page.locator('#ocb')).toBeEnabled();
+    await expect(page.locator('#ocb')).toHaveValue('1');
+  });
+
   test('громкость голоса и рисунка обновляет подписи и opt', async ({ page }) => {
     await boot(page);
     await openTab(page, 'settings');
@@ -194,7 +209,9 @@ test.describe('настройки и сохранения', () => {
     await boot(page, { opt: { GM: true } });
     await expect(page.locator('#vscore')).toBeHidden();
     await openTab(page, 'score');
-    await expect(page.locator('#hud')).toBeVisible();
+    await expect(page.locator('#hst')).toBeVisible();
+    await expect(page.locator('#rt')).toBeVisible();
+    await expect(page.locator('#hud')).toBeHidden();
     await expect(page.locator('#tscore')).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('#mst')).toHaveText('Нажмите Старт, чтобы включить вход');
     await expect(page.locator('#ogm')).toBeChecked();

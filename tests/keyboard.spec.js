@@ -18,7 +18,7 @@ test.describe('клавиатура', () => {
     await page.keyboard.press('Enter');
     await expect.poll(() => page.evaluate(() => playing)).toBe(true);
     await expect(page.locator('#phase')).toHaveText('Счёт');
-    await expect(page.locator('#bars')).toHaveText('такт счёта');
+    await expect(page.locator('#bars')).toHaveText('счёт 1 из 2');
     await expect(page.locator('#bplay')).toHaveText('Пауза (пробел)');
     await page.keyboard.press('Space');
   });
@@ -123,7 +123,7 @@ test.describe('клавиатура', () => {
     await boot(page, { opt: { L: 0, P: 1, count: true, V: false, N: false, GM: false }, cur: 5, shift: 0 });
     await page.locator('#brst').click();
     await expect(page.locator('#phase')).toHaveText('Счёт');
-    await expect(page.locator('#bars')).toHaveText('такт счёта');
+    await expect(page.locator('#bars')).toHaveText('счёт 1 из 2');
     expect(await page.evaluate(() => sc === cur && cur === 5)).toBe(true);
     await page.locator('#bplay').click();
   });

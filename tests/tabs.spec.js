@@ -19,19 +19,49 @@ test.describe('вкладки, шапка и логотип', () => {
     await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('h1')).toHaveText('RitmDojo');
 
-    const art = await page.evaluate(() => ({
-      logoRects: document.querySelectorAll('#logo rect').length,
-      gearRects: document.querySelectorAll('#bset svg rect').length,
-      crisp: document.getElementById('logo').getAttribute('shape-rendering'),
-      gearBeforeLogo: !!(document.getElementById('bset').compareDocumentPosition(document.getElementById('logo')) & Node.DOCUMENT_POSITION_FOLLOWING),
-      logoColor: getComputedStyle(document.documentElement).getPropertyValue('--lis').trim(),
-    }));
-    expect(art.logoRects).toBeGreaterThan(20);
+    const art = await page.evaluate(() => {
+      const b = id => document.getElementById(id);
+      const before = (a, c) => !!(b(a).compareDocumentPosition(b(c)) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return {
+        logoRects: document.querySelectorAll('#logo rect').length,
+        wordRects: document.querySelectorAll('#wm rect').length,
+        gearRects: document.querySelectorAll('#bset svg rect').length,
+        helpRects: document.querySelectorAll('#bhelp svg rect').length,
+        crisp: document.getElementById('logo').getAttribute('shape-rendering'),
+        wordCrisp: document.getElementById('wm').getAttribute('shape-rendering'),
+        gearBeforeHelp: before('bset', 'bhelp'),
+        helpBeforeLogo: before('bhelp', 'logo'),
+        gearBeforeLogo: before('bset', 'logo'),
+        logoColor: getComputedStyle(document.documentElement).getPropertyValue('--lis').trim(),
+      };
+    });
+    expect(art.logoRects).toBeGreaterThan(15);
+    expect(art.wordRects).toBeGreaterThan(50);
     expect(art.gearRects).toBeGreaterThan(20);
+    expect(art.helpRects).toBeGreaterThan(10);
     expect(art.crisp).toBe('crispEdges');
+    expect(art.wordCrisp).toBe('crispEdges');
+    expect(art.gearBeforeHelp).toBe(true);
+    expect(art.helpBeforeLogo).toBe(true);
     expect(art.gearBeforeLogo).toBe(true);
     expect(art.logoColor).toMatch(/^#/);
     await expectNoErrors(errors);
+  });
+
+  test('кнопка ? открывает подсказки и возвращает на игру', async ({ page }) => {
+    await boot(page);
+    await expect(page.locator('#vplay dl')).toHaveCount(0);
+    await page.locator('#bhelp').click();
+    await expect(page.locator('#vhelp')).toBeVisible();
+    await expect(page.locator('#vplay')).toBeHidden();
+    await expect(page.locator('#bhelp')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#vhelp')).toContainText('Горячие клавиши');
+    await expect(page.locator('#vhelp')).toContainText('Пробел');
+    await expect(page.locator('#vhelp')).toContainText('два такта сначала «раз — два —»');
+    await page.locator('#bhelp').click();
+    await expect(page.locator('#vplay')).toBeVisible();
+    await expect(page.locator('#vhelp')).toBeHidden();
+    await expect(page.locator('#bhelp')).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('шестерёнка открывает настройки и возвращает обратно', async ({ page }) => {
@@ -52,7 +82,10 @@ test.describe('вкладки, шапка и логотип', () => {
     await boot(page);
     await openTab(page, 'score');
     await expect(page.locator('#vscore')).toBeVisible();
-    await expect(page.locator('#hud')).toBeVisible();
+    await expect(page.locator('#rt')).toBeVisible();
+    await expect(page.locator('#hst')).toBeVisible();
+    await expect(page.locator('#hh')).toBeVisible();
+    await expect(page.locator('#hud')).toBeHidden();
     await expect(page.locator('#vplay')).toBeHidden();
     await expect(page.locator('#vset')).toBeHidden();
     await expect(page.locator('#tscore')).toHaveAttribute('aria-selected', 'true');
