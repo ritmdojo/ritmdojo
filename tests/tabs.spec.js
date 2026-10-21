@@ -29,23 +29,43 @@ test.describe('вкладки, шапка и логотип', () => {
         helpRects: document.querySelectorAll('#bhelp svg rect').length,
         crisp: document.getElementById('logo').getAttribute('shape-rendering'),
         wordCrisp: document.getElementById('wm').getAttribute('shape-rendering'),
-        gearBeforeHelp: before('bset', 'bhelp'),
-        helpBeforeLogo: before('bhelp', 'logo'),
-        gearBeforeLogo: before('bset', 'logo'),
-        logoColor: getComputedStyle(document.documentElement).getPropertyValue('--lis').trim(),
+        logoBeforeTabs: before('logo', 'tplay'),
+        tabsBeforeHelp: before('tscore', 'bhelp'),
+        helpBeforeGear: before('bhelp', 'bset'),
+        gearLast: document.querySelector('.topin').lastElementChild.id,
+        shoe: getComputedStyle(document.querySelector('#lfoot g rect')).fill,
       };
     });
-    expect(art.logoRects).toBeGreaterThan(15);
+    expect(art.logoRects).toBeGreaterThan(14);
     expect(art.wordRects).toBeGreaterThan(50);
     expect(art.gearRects).toBeGreaterThan(20);
     expect(art.helpRects).toBeGreaterThan(10);
     expect(art.crisp).toBe('crispEdges');
     expect(art.wordCrisp).toBe('crispEdges');
-    expect(art.gearBeforeHelp).toBe(true);
-    expect(art.helpBeforeLogo).toBe(true);
-    expect(art.gearBeforeLogo).toBe(true);
-    expect(art.logoColor).toMatch(/^#/);
+    expect(art.logoBeforeTabs).toBe(true);
+    expect(art.tabsBeforeHelp).toBe(true);
+    expect(art.helpBeforeGear).toBe(true);
+    expect(art.gearLast).toBe('bset');
+    expect(art.shoe).toMatch(/^rgb/);
     await expectNoErrors(errors);
+  });
+
+  test('логотип и название переключаются между светлой и тёмной темой', async ({ page }) => {
+    await boot(page);
+    const colors = await page.evaluate(() => {
+      const shoe = () => getComputedStyle(document.querySelector('#lfoot g rect')).fill;
+      const word = () => getComputedStyle(document.querySelector('#wm rect')).fill;
+      const accent = () => getComputedStyle(document.querySelector('#wm rect[fill*="need"]')).fill;
+      const light = { shoe: shoe(), word: word(), accent: accent() };
+      document.documentElement.dataset.theme = 'dark';
+      const dark = { shoe: shoe(), word: word(), accent: accent() };
+      document.documentElement.removeAttribute('data-theme');
+      return { light, dark };
+    });
+    expect(colors.light.shoe).not.toBe(colors.dark.shoe);
+    expect(colors.light.word).not.toBe(colors.dark.word);
+    expect(colors.dark.shoe).not.toBe(colors.dark.accent);
+    expect(colors.light.word).not.toBe(colors.light.accent);
   });
 
   test('кнопка ? открывает подсказки и возвращает на игру', async ({ page }) => {

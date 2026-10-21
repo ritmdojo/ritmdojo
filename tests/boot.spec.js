@@ -79,8 +79,8 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#bsave')).toHaveCount(0);
     expect(await page.evaluate(() => window.claude)).toBeUndefined();
     await expect(page.locator('#mst')).toHaveText('');
-    await expect(page.locator('#lneedle')).toHaveAttribute('transform', 'translate(0 0)');
     await expect(page.locator('#lfoot')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#ltap')).toHaveAttribute('opacity', '1');
     expect(await page.evaluate(() => document.querySelectorAll('#wm rect').length)).toBeGreaterThan(50);
     await expect(page.locator('#strip .gr span')).toHaveCount(8);
     await expect(page.locator('#strip .gr span.bt')).toHaveText(['1', '2', '3', '4']);

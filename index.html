@@ -77,7 +77,7 @@ h1{margin:0;display:flex;align-items:center}
 h1 svg{display:block;height:20px;width:auto;color:var(--fg)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .brand{display:flex;align-items:center;gap:8px;min-width:0}
-.logo{flex:none;display:block;width:38px;height:38px}
+.logo{flex:none;display:block;width:46px;height:28px}
 .gear{display:flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;padding:0;border-radius:9px;color:var(--mut)}
 .gear svg{display:block;width:24px;height:24px}
 .gear[aria-pressed=true]{color:var(--fg);border-color:var(--fg);background:var(--card)}
@@ -88,20 +88,22 @@ h1 svg{display:block;height:20px;width:auto;color:var(--fg)}
 .view{animation:viewin .18s ease-out}@keyframes viewin{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 #vst2,#vst{display:block;margin-top:8px;color:var(--mut);font-size:13px}
 p.note{font-size:13px;color:var(--mut);margin:0 2px}
-@media (max-width:430px){.topin{gap:6px;padding:8px 12px}h1 svg{height:16px}.logo{width:32px;height:32px}.gear{width:32px;height:32px}.tab{padding:6px 9px;font-size:13px}}
+@media (max-width:430px){.topin{gap:6px;padding:8px 12px}h1 svg{height:15px}.logo{width:38px;height:23px}.gear{width:32px;height:32px}.tab{padding:6px 8px;font-size:13px}}
+@media (max-width:360px){.topin{gap:5px;padding:8px 10px}h1 svg{height:13px}.logo{width:32px;height:20px}.gear{width:30px;height:30px}.tab{padding:6px 7px;font-size:12px}}
+@media (max-width:354px){h1{display:none}}
 @media (prefers-reduced-motion:reduce){.view{animation:none}}
 </style></head><body>
 <header class="top"><div class="topin">
-<button id="bset" class="gear" type="button" title="Настройки" aria-label="Настройки" aria-pressed="false" aria-controls="vset"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="0" width="2" height="1" fill="currentColor"/><rect x="7" y="1" width="2" height="1" fill="currentColor"/><rect x="2" y="2" width="2" height="1" fill="currentColor"/><rect x="5" y="2" width="6" height="1" fill="currentColor"/><rect x="12" y="2" width="2" height="1" fill="currentColor"/><rect x="2" y="3" width="12" height="1" fill="currentColor"/><rect x="3" y="4" width="10" height="1" fill="currentColor"/><rect x="2" y="5" width="5" height="1" fill="currentColor"/><rect x="9" y="5" width="5" height="1" fill="currentColor"/><rect x="2" y="6" width="4" height="1" fill="currentColor"/><rect x="10" y="6" width="4" height="1" fill="currentColor"/><rect x="0" y="7" width="5" height="1" fill="currentColor"/><rect x="11" y="7" width="5" height="1" fill="currentColor"/><rect x="0" y="8" width="5" height="1" fill="currentColor"/><rect x="11" y="8" width="5" height="1" fill="currentColor"/><rect x="2" y="9" width="4" height="1" fill="currentColor"/><rect x="10" y="9" width="4" height="1" fill="currentColor"/><rect x="2" y="10" width="5" height="1" fill="currentColor"/><rect x="9" y="10" width="5" height="1" fill="currentColor"/><rect x="3" y="11" width="10" height="1" fill="currentColor"/><rect x="2" y="12" width="12" height="1" fill="currentColor"/><rect x="2" y="13" width="2" height="1" fill="currentColor"/><rect x="5" y="13" width="6" height="1" fill="currentColor"/><rect x="12" y="13" width="2" height="1" fill="currentColor"/><rect x="7" y="14" width="2" height="1" fill="currentColor"/><rect x="7" y="15" width="2" height="1" fill="currentColor"/></svg></button>
-<button id="bhelp" class="gear" type="button" title="Подсказки" aria-label="Подсказки и горячие клавиши" aria-pressed="false" aria-controls="vhelp"><span aria-hidden="true">?</span></button>
 <div class="brand">
-<svg id="logo" class="logo" viewBox="0 0 16 16" width="38" height="38" shape-rendering="crispEdges" role="img" aria-label="RitmDojo"><title>RitmDojo</title><g fill="var(--fg)"><rect x="6" y="1" width="4" height="1"/><rect x="5" y="2" width="6" height="1"/><rect x="4" y="3" width="1" height="2"/><rect x="11" y="3" width="1" height="2"/><rect x="3" y="5" width="1" height="2"/><rect x="12" y="5" width="1" height="2"/><rect x="2" y="7" width="1" height="2"/><rect x="13" y="7" width="1" height="2"/><rect x="1" y="9" width="1" height="2"/><rect x="14" y="9" width="1" height="2"/><rect x="0" y="11" width="16" height="2"/></g><g id="lneedle"><rect x="6" y="3" width="3" height="2" fill="var(--need)"/><rect x="7" y="5" width="1" height="2" fill="var(--lis)"/><rect x="6" y="7" width="1" height="2" fill="var(--lis)"/><rect x="5" y="9" width="1" height="2" fill="var(--lis)"/><rect x="4" y="10" width="1" height="2" fill="var(--lis)"/></g><g id="lfoot"><rect x="8" y="13" width="4" height="1" fill="var(--fg)"/><rect x="7" y="14" width="6" height="1" fill="var(--fg)"/><rect x="6" y="15" width="7" height="1" fill="var(--fg)"/></g></svg>
+<svg id="logo" class="logo" viewBox="0 0 18 11" width="46" height="28" shape-rendering="crispEdges" role="img" aria-label="RitmDojo"><title>RitmDojo</title><g id="lfoot"><g fill="var(--fg)"><rect x="5" y="0" width="5" height="1"/><rect x="4" y="1" width="7" height="1"/><rect x="4" y="2" width="8" height="1"/><rect x="4" y="3" width="9" height="1"/><rect x="4" y="4" width="11" height="1"/><rect x="4" y="5" width="13" height="1"/><rect x="4" y="6" width="14" height="1"/><rect x="3" y="7" width="15" height="1"/><rect x="4" y="6" width="2" height="1" fill="var(--need)"/></g><rect x="2" y="8" width="16" height="1" fill="var(--need)"/><rect x="2" y="9" width="16" height="1" fill="var(--mut)"/><g fill="var(--bg)"><rect x="7" y="2" width="2" height="1"/><rect x="8" y="3" width="2" height="1"/><rect x="9" y="4" width="2" height="1"/></g></g><g id="ltap" fill="var(--need)"><rect x="5" y="10" width="2" height="1"/><rect x="13" y="10" width="2" height="1"/></g></svg>
 <h1><svg id="wm" aria-hidden="true" shape-rendering="crispEdges"></svg><span class="sr">RitmDojo</span></h1>
 </div>
 <nav class="tabs" role="tablist" aria-label="Разделы">
 <button id="tplay" class="tab on" type="button" role="tab" aria-selected="true" aria-controls="vplay">Игра</button>
 <button id="tscore" class="tab" type="button" role="tab" aria-selected="false" aria-controls="vscore">Счёт</button>
 </nav>
+<button id="bhelp" class="gear" type="button" title="Подсказки" aria-label="Подсказки и горячие клавиши" aria-pressed="false" aria-controls="vhelp"><span aria-hidden="true">?</span></button>
+<button id="bset" class="gear" type="button" title="Настройки" aria-label="Настройки" aria-pressed="false" aria-controls="vset"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="0" width="2" height="1" fill="currentColor"/><rect x="7" y="1" width="2" height="1" fill="currentColor"/><rect x="2" y="2" width="2" height="1" fill="currentColor"/><rect x="5" y="2" width="6" height="1" fill="currentColor"/><rect x="12" y="2" width="2" height="1" fill="currentColor"/><rect x="2" y="3" width="12" height="1" fill="currentColor"/><rect x="3" y="4" width="10" height="1" fill="currentColor"/><rect x="2" y="5" width="5" height="1" fill="currentColor"/><rect x="9" y="5" width="5" height="1" fill="currentColor"/><rect x="2" y="6" width="4" height="1" fill="currentColor"/><rect x="10" y="6" width="4" height="1" fill="currentColor"/><rect x="0" y="7" width="5" height="1" fill="currentColor"/><rect x="11" y="7" width="5" height="1" fill="currentColor"/><rect x="0" y="8" width="5" height="1" fill="currentColor"/><rect x="11" y="8" width="5" height="1" fill="currentColor"/><rect x="2" y="9" width="4" height="1" fill="currentColor"/><rect x="10" y="9" width="4" height="1" fill="currentColor"/><rect x="2" y="10" width="5" height="1" fill="currentColor"/><rect x="9" y="10" width="5" height="1" fill="currentColor"/><rect x="3" y="11" width="10" height="1" fill="currentColor"/><rect x="2" y="12" width="12" height="1" fill="currentColor"/><rect x="2" y="13" width="2" height="1" fill="currentColor"/><rect x="5" y="13" width="6" height="1" fill="currentColor"/><rect x="12" y="13" width="2" height="1" fill="currentColor"/><rect x="7" y="14" width="2" height="1" fill="currentColor"/><rect x="7" y="15" width="2" height="1" fill="currentColor"/></svg></button>
 </div></header>
 <main>
 <section id="vplay" class="view" role="tabpanel" aria-labelledby="tplay">
@@ -188,7 +190,7 @@ const PF={R:['11110','10001','10001','11110','10100','10010','10001'],
  o:['00000','01110','10001','10001','10001','10001','01110'],
  j:['00020','00000','00010','00010','00010','10010','01100'],
  '?':['01110','10001','00001','00110','01100','00000','01100']};
-const pxs=rows=>{let h='';rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(c=='1')h+=`<rect x="${x}" y="${y}" width="1" height="1"/>`;else if(c=='2')h+=`<rect x="${x}" y="${y}" width="1" height="1" fill="var(--need)"/>`}));return h};
+const pxs=rows=>{let h='';rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(c=='1')h+=`<rect x="${x}" y="${y}" width="1" height="1" fill="currentColor"/>`;else if(c=='2')h+=`<rect x="${x}" y="${y}" width="1" height="1" fill="var(--need)"/>`}));return h};
 {let x=0,h='';for(const ch of 'RitmDojo'){const gl=PF[ch];h+=`<g transform="translate(${x} 0)">${pxs(gl)}</g>`;x+=gl[0].length+1}
  $('wm').setAttribute('viewBox',`0 0 ${x-1} 7`);$('wm').innerHTML=h;
  $('bhelp').innerHTML=`<svg viewBox="0 0 5 7" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true">${pxs(PF['?'])}</svg>`;
@@ -446,9 +448,8 @@ $('min').onchange=ev=>{opt.MIC=ev.target.value;save();micOn()};$('bcal').onclick
 $('pgb').onclick=ev=>{const r=ev.currentTarget.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width,d=B.map((_,i)=>bdur(i)),tot=d.reduce((a,b)=>a+b);let a=0,i=0;for(;i<B.length-1;i++){if(a+d[i]>x*tot)break;a+=d[i]}go(i)};
 setInterval(()=>{$('lvf').style.width=Math.min(100,lv/(thr()*4)*100)+'%'},60);
 $('hg').innerHTML=Array.from({length:21},(_,j)=>{const c=Math.abs((j-10)*10);return `<i style="background:var(--${c<=45?'ok':c<=90?'lis':'need'})"></i>`}).join('');
-function foot(f){const p=(f*4)%1,h=.5-.5*Math.cos(2*Math.PI*p),n=$('lneedle'),b=$('lfoot');if(!n)return;
- const dx=Math.round((Math.floor(f*4+1e-6)%2?-1:1)*h*2);
- n.setAttribute('transform',`translate(${dx} 0)`);b.setAttribute('transform',`translate(0 ${-Math.round(h)})`)}
+function foot(f){const p=(f*4)%1,h=.5-.5*Math.cos(2*Math.PI*p),b=$('lfoot'),t=$('ltap');if(!b)return;
+ b.setAttribute('transform',`translate(0 ${-Math.round(h)})`);t.setAttribute('opacity',h>.5?'0':'1')}
 $('mout').onchange=ev=>{opt.OUT=ev.target.value;save();if(ctx&&ctx.setSinkId)ctx.setSinkId(opt.OUT).catch(()=>{})};
 $('bauto').onclick=()=>{opt.CALD=false;save();latUpd()};latUpd();
 foot(0);loadE();

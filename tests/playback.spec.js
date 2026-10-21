@@ -110,7 +110,8 @@ test.describe('планировщик и воспроизведение', () => 
     await expect(page.locator('#phase')).toHaveText('Стоп');
     await expect(page.locator('#bars')).toHaveText('');
     await expect(page.locator('#strip')).not.toHaveClass(/mute/);
-    await expect(page.locator('#lneedle')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#lfoot')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#ltap')).toHaveAttribute('opacity', '1');
     await expect(page.locator('#ph')).toHaveAttribute('style', 'left:0%');
     const state = await page.evaluate(() => ({ playing, q: q.length, sc: sc }));
     expect(state.playing).toBe(false);
@@ -185,7 +186,7 @@ test.describe('планировщик и воспроизведение', () => 
     await page.locator('#bplay').click();
   });
 
-  test('foot качает маятник и ногу в логотипе', async ({ page }) => {
+  test('foot притопывает кедом в логотипе', async ({ page }) => {
     await boot(page);
     const poses = await page.evaluate(() => {
       const out = [];
@@ -193,17 +194,17 @@ test.describe('планировщик и воспроизведение', () => 
         foot(f);
         out.push({
           f,
-          needle: document.getElementById('lneedle').getAttribute('transform'),
-          boot: document.getElementById('lfoot').getAttribute('transform'),
+          shoe: document.getElementById('lfoot').getAttribute('transform'),
+          tap: document.getElementById('ltap').getAttribute('opacity'),
         });
       }
       return out;
     });
-    expect(poses[0]).toMatchObject({ needle: 'translate(0 0)', boot: 'translate(0 0)' });
-    expect(poses[1]).toMatchObject({ needle: 'translate(2 0)', boot: 'translate(0 -1)' });
-    expect(poses[2]).toMatchObject({ needle: 'translate(0 0)', boot: 'translate(0 0)' });
-    expect(poses[3]).toMatchObject({ needle: 'translate(-2 0)', boot: 'translate(0 -1)' });
-    expect(poses[4]).toMatchObject({ needle: 'translate(0 0)', boot: 'translate(0 0)' });
+    expect(poses[0]).toMatchObject({ shoe: 'translate(0 0)', tap: '1' });
+    expect(poses[1]).toMatchObject({ shoe: 'translate(0 -1)', tap: '0' });
+    expect(poses[2]).toMatchObject({ shoe: 'translate(0 0)', tap: '1' });
+    expect(poses[3]).toMatchObject({ shoe: 'translate(0 -1)', tap: '0' });
+    expect(poses[4]).toMatchObject({ shoe: 'translate(0 0)', tap: '1' });
   });
 
   test('bdur добавляет такт итога только в игре', async ({ page }) => {
