@@ -79,7 +79,8 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#bsave')).toHaveCount(0);
     expect(await page.evaluate(() => window.claude)).toBeUndefined();
     await expect(page.locator('#mst')).toHaveText('');
-    await expect(page.locator('#lfoot')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#ltoe')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#lfoot')).not.toHaveAttribute('transform', /.*/);
     await expect(page.locator('#ltap')).toHaveAttribute('opacity', '1');
     expect(await page.evaluate(() => document.querySelectorAll('#wm rect').length)).toBeGreaterThan(50);
     await expect(page.locator('#strip .gr span')).toHaveCount(8);
@@ -249,7 +250,7 @@ test.describe('отрисовка рисунка', () => {
 
     const sixteenths = await grid(2, 0);
     expect(sixteenths.columns).toBe('grid-template-columns:repeat(16,1fr)');
-    expect(sixteenths.labels).toEqual(['1', '', 'и', '', '2', '', 'и', '', '3', '', 'и', '', '4', '', 'и', '']);
+    expect(sixteenths.labels).toEqual(['1', 'е', 'и', 'а', '2', 'е', 'и', 'а', '3', 'е', 'и', 'а', '4', 'е', 'и', 'а']);
     expect(sixteenths.notes).toBe(16);
 
     const triplets = await grid(3, 0);

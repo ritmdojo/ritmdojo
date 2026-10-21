@@ -446,11 +446,27 @@ test.describe('режим игры: оценка и статистика', () =>
       gs = r;
       xq = [];
       gameTick({ k: 1, t: 0, spb: .5, bi: 2 }, 1);
-      return { missed, result: document.getElementById('fb').textContent, shown: R && R.shown };
+      const pop = document.getElementById('pop');
+      return { missed, result: document.getElementById('fb').textContent, pop: pop.textContent, popCls: pop.className, shown: R && R.shown };
     });
     expect(data.missed).toEqual({ xq: ['m'], m: 1, combo: 0, flash: 'Мимо' });
-    expect(data.result).toBe('Не пройдено 0%, ещё раз');
+    expect(data.result).toBe('');
+    expect(data.pop).toBe('Неудача 0%');
+    expect(data.popCls).toBe('show bad');
     expect(data.shown).toBe(1);
+  });
+
+  test('попап итога скрывается сам и по остановке', async ({ page }) => {
+    await boot(page);
+    await page.evaluate(() => popup('Успех! 90%', 'ok'));
+    await expect(page.locator('#pop')).toHaveText('Успех! 90%');
+    await expect(page.locator('#pop')).toHaveClass(/show/);
+    await expect(page.locator('#pop')).not.toHaveClass(/show/, { timeout: 4000 });
+    await page.evaluate(() => popup('Неудача 10%', 'bad'));
+    await expect(page.locator('#pop')).toHaveClass(/show/);
+    await page.evaluate(() => stop());
+    await expect(page.locator('#pop')).not.toHaveClass(/show/);
+    await expect(page.locator('#pop')).toHaveText('');
   });
 
   test('HUD считает точность без лишних нот в знаменателе', async ({ page }) => {
@@ -505,7 +521,7 @@ test.describe('режим игры: воспроизведение и калиб
     await enableGame(page);
     await openTab(page, 'play');
     await page.locator('#bplay').click();
-    await expect(page.locator('#fb')).toHaveText('Не пройдено 0%, ещё раз', { timeout: 6000 });
+    await expect(page.locator('#pop')).toHaveText('Неудача 0%', { timeout: 6000 });
     await expect(page.locator('#phase')).toHaveText('Итог');
     const atResult = await page.evaluate(() => ({ sc, cur, result: R && { n: R.gs.n, st: R.st, a: R.a } }));
     expect(atResult).toEqual({ sc: 2, cur: 2, result: { n: 4, st: 0, a: 0 } });

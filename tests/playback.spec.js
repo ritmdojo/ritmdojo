@@ -55,7 +55,7 @@ test.describe('планировщик и воспроизведение', () => 
       playing = false; say = orig; k = 0;
       return out;
     });
-    expect(log).toEqual(['раз', 'два', 'раз', 'и', 'два', 'и', 'три', 'и', 'четыре', 'и']);
+    expect(log).toEqual(['раз', 'два', 'раз', 'два', 'три', 'четыре']);
   });
 
   test('фазы Слушай, Играй и приглушение полосы', async ({ page }) => {
@@ -110,7 +110,7 @@ test.describe('планировщик и воспроизведение', () => 
     await expect(page.locator('#phase')).toHaveText('Стоп');
     await expect(page.locator('#bars')).toHaveText('');
     await expect(page.locator('#strip')).not.toHaveClass(/mute/);
-    await expect(page.locator('#lfoot')).toHaveAttribute('transform', 'translate(0 0)');
+    await expect(page.locator('#ltoe')).toHaveAttribute('transform', 'translate(0 0)');
     await expect(page.locator('#ltap')).toHaveAttribute('opacity', '1');
     await expect(page.locator('#ph')).toHaveAttribute('style', 'left:0%');
     const state = await page.evaluate(() => ({ playing, q: q.length, sc: sc }));
@@ -194,7 +194,7 @@ test.describe('планировщик и воспроизведение', () => 
         foot(f);
         out.push({
           f,
-          shoe: document.getElementById('lfoot').getAttribute('transform'),
+          shoe: document.getElementById('ltoe').getAttribute('transform'),
           tap: document.getElementById('ltap').getAttribute('opacity'),
         });
       }
