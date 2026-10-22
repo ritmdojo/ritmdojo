@@ -116,6 +116,29 @@ test.describe('вкладки, шапка и логотип', () => {
     await expect(page.locator('#vscore')).toBeHidden();
   });
 
+  test('управление перенесено в карточку урока и стало иконками', async ({ page }) => {
+    await boot(page);
+    const layout = await page.evaluate(() => {
+      const card = document.getElementById('bplay').closest('.card');
+      return {
+        inCard: !!card,
+        sameCard: card && card.contains(document.getElementById('bprev')) && card.contains(document.getElementById('brst')) && card.contains(document.getElementById('bnext')),
+        oldRow: document.querySelectorAll('.tr').length,
+        icons: document.querySelectorAll('#bprev svg, #brst svg, #bnext svg').length,
+        playIcons: document.querySelectorAll('#bplay svg').length,
+        chips: document.querySelectorAll('#tempos .chip').length,
+      };
+    });
+    expect(layout.inCard).toBe(true);
+    expect(layout.sameCard).toBe(true);
+    expect(layout.oldRow).toBe(0);
+    expect(layout.icons).toBe(3);
+    expect(layout.playIcons).toBe(2);
+    expect(layout.chips).toBe(3);
+    await expect(page.locator('#bplay')).toHaveText('Старт (пробел)');
+    await expect(page.locator('#bplay')).toHaveAttribute('aria-label', /Старт/);
+  });
+
   test('переключение вкладок не сбрасывает урок и настройки', async ({ page }) => {
     await boot(page);
     await page.selectOption('#sx', '2');

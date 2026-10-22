@@ -41,7 +41,8 @@ test.describe('оформление и адаптивность', () => {
     for (const [name, value] of Object.entries(vars)) {
       expect(value, name).toMatch(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
     }
-    await expect(page.locator('#m5')).toHaveCSS('color', 'rgb(16, 24, 32)');
+    await expect(page.locator('#m5')).toHaveCSS('color', 'rgb(91, 103, 115)');
+    await expect(page.locator('#bplay')).toHaveCSS('background-color', 'rgb(16, 24, 32)');
     await expect(page.locator('kbd').first()).toHaveCSS('border-bottom-width', '2px');
   });
 

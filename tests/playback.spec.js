@@ -186,6 +186,56 @@ test.describe('планировщик и воспроизведение', () => 
     await page.locator('#bplay').click();
   });
 
+  test('щелчок метронома ярче голоса и разведён по панораме', async ({ page }) => {
+    await boot(page, fast({ N: true }));
+    await page.evaluate(() => {
+      window.__osc = [];
+      const st = OscillatorNode.prototype.start;
+      OscillatorNode.prototype.start = function (...a) {
+        window.__osc.push({ f: Math.round(this.frequency.value), type: this.type });
+        return st.apply(this, a);
+      };
+      window.__pan = [];
+      const sp = AudioContext.prototype.createStereoPanner;
+      AudioContext.prototype.createStereoPanner = function () {
+        const n = sp.call(this);
+        window.__pan.push(n);
+        return n;
+      };
+    });
+    await page.locator('#bplay').click();
+    await page.waitForFunction(() => window.__osc.length > 4);
+    await page.locator('#bplay').click();
+    const data = await page.evaluate(() => ({ osc: window.__osc, pan: window.__pan.map(n => n.pan.value) }));
+    const clicks = data.osc.filter(o => o.f > 1000);
+    expect(clicks.length).toBeGreaterThanOrEqual(4);
+    expect(clicks.every(o => o.type === 'triangle')).toBe(true);
+    expect(clicks.some(o => o.f === 2400)).toBe(true);
+    expect(clicks.filter(o => o.f === 2000).length).toBeGreaterThanOrEqual(3);
+    expect(data.pan.map(v => +v.toFixed(2))).toContain(-0.45);
+    expect(data.pan.map(v => +v.toFixed(2))).toContain(0.18);
+  });
+
+  test('кадр не меряет разметку каждый раз', async ({ page }) => {
+    await boot(page, fast({ N: true, GM: true }));
+    await page.evaluate(() => {
+      window.__rect = 0;
+      const o = Element.prototype.getBoundingClientRect;
+      Element.prototype.getBoundingClientRect = function () {
+        if (this.id === 'cv' && new Error().stack.includes('at draw')) window.__rect++;
+        return o.call(this);
+      };
+    });
+    await page.locator('#bplay').click();
+    await page.waitForTimeout(1500);
+    const first = await page.evaluate(() => window.__rect);
+    await page.waitForTimeout(1500);
+    const second = await page.evaluate(() => window.__rect);
+    await page.locator('#bplay').click();
+    expect(first).toBeLessThanOrEqual(3);
+    expect(second).toBeLessThanOrEqual(first + 1);
+  });
+
   test('foot притопывает кедом в логотипе', async ({ page }) => {
     await boot(page);
     const poses = await page.evaluate(() => {
@@ -195,16 +245,18 @@ test.describe('планировщик и воспроизведение', () => 
         out.push({
           f,
           shoe: document.getElementById('ltoe').getAttribute('transform'),
+          mid: document.getElementById('lmid').getAttribute('transform'),
+          heel: document.getElementById('lback').getAttribute('transform'),
           tap: document.getElementById('ltap').getAttribute('opacity'),
         });
       }
       return out;
     });
-    expect(poses[0]).toMatchObject({ shoe: 'translate(0 0)', tap: '1' });
-    expect(poses[1]).toMatchObject({ shoe: 'translate(0 -1)', tap: '0' });
-    expect(poses[2]).toMatchObject({ shoe: 'translate(0 0)', tap: '1' });
-    expect(poses[3]).toMatchObject({ shoe: 'translate(0 -1)', tap: '0' });
-    expect(poses[4]).toMatchObject({ shoe: 'translate(0 0)', tap: '1' });
+    expect(poses[0]).toMatchObject({ shoe: 'translate(0 0)', mid: 'translate(0 0)', heel: null, tap: '1' });
+    expect(poses[1]).toMatchObject({ shoe: 'translate(0 -2)', mid: 'translate(0 -1)', heel: null, tap: '0' });
+    expect(poses[2]).toMatchObject({ shoe: 'translate(0 0)', mid: 'translate(0 0)', heel: null, tap: '1' });
+    expect(poses[3]).toMatchObject({ shoe: 'translate(0 -2)', mid: 'translate(0 -1)', heel: null, tap: '0' });
+    expect(poses[4]).toMatchObject({ shoe: 'translate(0 0)', mid: 'translate(0 0)', heel: null, tap: '1' });
   });
 
   test('bdur добавляет такт итога только в игре', async ({ page }) => {
