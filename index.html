@@ -15,32 +15,43 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root[data-theme="dark"]{--bg:#0f1418;--card:#182027;--paper:#c9d2db;--fg:#e8edf2;--mut:#8d9aa6;--line:#2b3640;--lis:#a78bfa;--ok:#34d399;--need:#f87171}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 "Avenir Next","Helvetica Neue",system-ui,sans-serif}
-main{max-width:760px;margin:0 auto;padding:20px 16px 40px}
-h1{font-size:24px;margin:0 0 2px}p.sub{margin:0 0 16px;color:var(--mut)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+main{max-width:760px;margin:0 auto;padding:10px 16px 16px}
+h1{font-size:24px;margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--mut);flex:1;min-width:200px}
+#vplay .row label{min-width:120px}
+#pg .row{margin-top:6px;gap:2px 8px;font-size:12px}
 select,input[type=number]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px}
 button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer}
 button:hover{border-color:var(--mut)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--lis);outline-offset:2px}
 .chip.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 #bpm{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;min-width:40px;text-align:center}
-#phase{font-size:28px;font-weight:700}#phase.cnt{color:var(--mut)}#phase.lis{color:var(--lis)}#phase.pl{color:var(--ok)}
-#bars{color:var(--mut);margin-left:auto}
-#strip{position:relative;margin:10px 2px 6px}
-.gr{display:grid;font-size:13px;color:var(--mut)}
-.gr span{padding:0 0 3px 3px;border-left:1px solid var(--line);overflow:hidden;white-space:nowrap}
-.gr span.bt{border-left:2px solid var(--fg);color:var(--fg);font-weight:700;font-size:15px}
+#phase{font-size:20px;font-weight:700;white-space:nowrap}#phase.cnt{color:var(--mut)}#phase.lis{color:var(--lis)}#phase.pl{color:var(--ok)}
+#bars{color:var(--mut);font-size:13px;white-space:nowrap}
+.stat{display:flex;align-items:center;gap:4px 12px;flex-wrap:wrap;min-height:24px}
+.stat .live{margin-left:auto}
+#strip{position:relative;margin:6px 2px 4px}
+.gr{display:grid;font-size:12px;color:var(--mut)}
+.gr span{padding:0 0 2px 3px;border-left:1px solid var(--line);overflow:hidden;white-space:nowrap}
+.gr span.bt{border-left:2px solid var(--fg);color:var(--fg);font-weight:700;font-size:14px}
 .gr span.now{background:color-mix(in srgb,var(--need) 20%,transparent)}
 .gr span.tc{text-align:center;padding-left:0}
 .ft span.c{margin-left:0;transform:translateX(-50%)}
-.nt{position:relative;height:56px;border-bottom:2px solid var(--line)}
+.nt{position:relative;height:38px;border-bottom:2px solid var(--line)}
 .nt i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}.nt i.b{width:2px;background:var(--fg);opacity:.4}
-.nt b{position:absolute;top:10px;bottom:10px;border-radius:6px;background:var(--card);border:2px solid var(--fg);transition:opacity .2s}
+.nt b{position:absolute;top:7px;bottom:7px;border-radius:6px;background:var(--card);border:2px solid var(--fg);transition:opacity .2s}
 .nt b.a{background:var(--fg)}
 #strip.mute .nt b{opacity:.35}
-.ft{position:relative;height:24px;font-size:16px;color:var(--mut)}.ft span{position:absolute;top:2px;margin-left:3px}.ft span.d{color:var(--fg);font-weight:700}
+.ft{position:relative;height:18px;font-size:13px;color:var(--mut)}.ft span{position:absolute;top:2px;margin-left:3px}.ft span.d{color:var(--fg);font-weight:700}
 #strip u{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--need);border-radius:2px;z-index:2}
+.prow{display:flex;align-items:center;gap:8px;margin-top:2px}
+#pname{font-size:15px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{flex:none;width:20px;height:20px;padding:0;border-radius:50%;font:600 12px/1 system-ui,sans-serif;color:var(--mut);display:inline-flex;align-items:center;justify-content:center}
+.dot.on{color:var(--fg);border-color:var(--fg)}
+#hud{position:relative}
+.hint{position:absolute;z-index:5;right:10px;top:32px;max-width:min(420px,calc(100% - 24px));background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.45;color:var(--mut);box-shadow:0 12px 32px rgba(0,0,0,.22)}
+.hint b{color:var(--fg)}
 
 
 
@@ -52,12 +63,12 @@ button:hover{border-color:var(--mut)}button:focus-visible,select:focus-visible,i
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chips .chip{padding:5px 11px;font-size:14px;border-radius:999px}
 .tbtns{display:flex;gap:6px;margin-left:auto}
-.ic{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:9px;color:var(--mut)}
+.ic{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;color:var(--mut)}
 .ic:hover{color:var(--fg);border-color:var(--mut)}
-.ic svg{display:block;width:20px;height:20px;fill:currentColor}
-.ic.big{width:46px;height:46px;background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.ic svg{display:block;width:20px;height:20px}
+.ic.big{width:54px;height:40px;background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .ic.big:hover{color:var(--bg);border-color:var(--fg)}
-.ic.big svg{width:24px;height:24px}
+.ic.big svg{width:22px;height:22px}
 .ic.big .i-pause{display:none}
 .ic.big.on .i-play{display:none}
 .ic.big.on .i-pause{display:block}
@@ -66,9 +77,9 @@ button:hover{border-color:var(--mut)}button:focus-visible,select:focus-visible,i
 dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14px;color:var(--mut)}dt{color:var(--fg)}dd{margin:0}
 kbd{font:inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 6px;background:var(--bg)}
 #pgb{height:12px;background:var(--line);border-radius:6px;overflow:hidden;cursor:pointer}#pgf{display:block;height:100%;width:0;background:var(--ok);transition:width .3s linear}
-.live b{display:block;font-size:26px;font-variant-numeric:tabular-nums;color:var(--fg)}
-.live{display:flex;flex-wrap:wrap;gap:12px 20px}.live>div{color:var(--mut);font-size:12px;letter-spacing:.04em;min-width:0}
-#cbar{display:flex;gap:3px;margin-top:8px}#cbar i{width:16px;height:6px;border-radius:1px;background:var(--line)}#cbar i.on{background:var(--ok)}
+.live b{display:block;font-size:16px;font-variant-numeric:tabular-nums;color:var(--fg)}
+.live{display:flex;flex-wrap:wrap;gap:2px 12px}.live>div{color:var(--mut);font-size:10px;letter-spacing:.02em;min-width:0}
+#cbar{display:flex;gap:3px;margin-top:4px}#cbar i{width:13px;height:4px;border-radius:1px;background:var(--line)}#cbar i.on{background:var(--ok)}
 #ha.hi{color:var(--ok)!important}#ha.lo{color:var(--need)!important}
 #rt{width:100%;border-collapse:collapse;font-size:14px}
 #rt th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600;text-align:left;padding:0 8px 7px 0}
@@ -80,21 +91,21 @@ kbd{font:inherit;border:1px solid var(--line);border-bottom-width:2px;border-rad
 #rt th:last-child,#rt td:last-child{padding-left:12px}
 #rt td.empty{color:var(--mut);padding:10px 0}
 #rte{margin:10px 0 0;font-size:13px;color:var(--mut)}
-#fb{font-size:26px;font-weight:700;min-height:36px;margin-top:6px}#fb.ok{color:var(--ok);animation:pop .25s}#fb.bad{color:var(--need);animation:pop .25s}#fb.res{font-size:28px;margin-top:10px;padding:4px 12px;border-radius:10px;border:1px solid currentColor;display:inline-block}@keyframes pop{from{transform:scale(1.2)}to{transform:scale(1)}}
+#fb{font-size:18px;font-weight:700;min-height:24px;margin-top:2px}#fb.ok{color:var(--ok);animation:pop .25s}#fb.bad{color:var(--need);animation:pop .25s}#fb.res{font-size:20px;margin-top:6px;padding:3px 10px;border-radius:10px;border:1px solid currentColor;display:inline-block}@keyframes pop{from{transform:scale(1.2)}to{transform:scale(1)}}
 #lvm{position:relative;width:130px;height:10px;background:var(--line);border-radius:5px;overflow:hidden}#lvf{display:block;height:100%;width:0;background:var(--ok)}
 #hg{display:flex;align-items:flex-end;gap:2px;height:48px;margin-top:8px;border-bottom:2px solid var(--line)}#hg i{flex:1;opacity:.85;min-height:2px;border-radius:2px 2px 0 0}
 h2{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:0 0 10px}
 .top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.topin{max-width:760px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.topin{max-width:760px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:10px}
 h1{margin:0;display:flex;align-items:center}
 h1 svg{display:block;height:20px;width:auto;color:var(--fg)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .brand{display:flex;align-items:center;gap:8px;min-width:0}
 .logo{flex:none;display:block;width:52px;height:23px}
 .gear{display:flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;padding:0;border-radius:9px;color:var(--mut)}
-.gear svg{display:block;width:24px;height:24px}
+.gear svg{display:block;width:20px;height:20px}
 .gear[aria-pressed=true]{color:var(--fg);border-color:var(--fg);background:var(--card)}
-#bhelp svg{width:22px;height:22px}
+#bhelp{font-size:17px;font-weight:600;line-height:1}
 .tabs{display:flex;gap:6px;margin-left:auto}
 .tab{padding:7px 12px;font-size:14px;color:var(--mut);border-radius:8px}
 .tab.on{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:700}
@@ -111,17 +122,15 @@ p.note{font-size:13px;color:var(--mut);margin:0 2px}
 <svg id="logo" class="logo" viewBox="0 0 30 13" width="52" height="23" shape-rendering="crispEdges" role="img" aria-label="RitmDojo"><title>RitmDojo</title></svg>
 <h1><svg id="wm" aria-hidden="true" shape-rendering="crispEdges"></svg><span class="sr">RitmDojo</span></h1>
 </div>
-<nav class="tabs" role="tablist" aria-label="Разделы">
-<button id="tplay" class="tab on" type="button" role="tab" aria-selected="true" aria-controls="vplay">Игра</button>
-<button id="tscore" class="tab" type="button" role="tab" aria-selected="false" aria-controls="vscore">Счёт</button>
-</nav>
+<div class="tabs" role="group" aria-label="Разделы">
+<button id="tscore" class="tab" type="button" aria-pressed="false" aria-controls="vscore">Счёт</button>
+</div>
 <button id="bhelp" class="gear" type="button" title="Подсказки" aria-label="Подсказки и горячие клавиши" aria-pressed="false" aria-controls="vhelp"><span aria-hidden="true">?</span></button>
-<button id="bset" class="gear" type="button" title="Настройки" aria-label="Настройки" aria-pressed="false" aria-controls="vset"><svg viewBox="0 0 16 16" width="24" height="24" shape-rendering="crispEdges" aria-hidden="true"><rect x="7" y="0" width="2" height="1" fill="currentColor"/><rect x="7" y="1" width="2" height="1" fill="currentColor"/><rect x="2" y="2" width="2" height="1" fill="currentColor"/><rect x="5" y="2" width="6" height="1" fill="currentColor"/><rect x="12" y="2" width="2" height="1" fill="currentColor"/><rect x="2" y="3" width="12" height="1" fill="currentColor"/><rect x="3" y="4" width="10" height="1" fill="currentColor"/><rect x="2" y="5" width="5" height="1" fill="currentColor"/><rect x="9" y="5" width="5" height="1" fill="currentColor"/><rect x="2" y="6" width="4" height="1" fill="currentColor"/><rect x="10" y="6" width="4" height="1" fill="currentColor"/><rect x="0" y="7" width="5" height="1" fill="currentColor"/><rect x="11" y="7" width="5" height="1" fill="currentColor"/><rect x="0" y="8" width="5" height="1" fill="currentColor"/><rect x="11" y="8" width="5" height="1" fill="currentColor"/><rect x="2" y="9" width="4" height="1" fill="currentColor"/><rect x="10" y="9" width="4" height="1" fill="currentColor"/><rect x="2" y="10" width="5" height="1" fill="currentColor"/><rect x="9" y="10" width="5" height="1" fill="currentColor"/><rect x="3" y="11" width="10" height="1" fill="currentColor"/><rect x="2" y="12" width="12" height="1" fill="currentColor"/><rect x="2" y="13" width="2" height="1" fill="currentColor"/><rect x="5" y="13" width="6" height="1" fill="currentColor"/><rect x="12" y="13" width="2" height="1" fill="currentColor"/><rect x="7" y="14" width="2" height="1" fill="currentColor"/><rect x="7" y="15" width="2" height="1" fill="currentColor"/></svg></button>
+<button id="bset" class="gear" type="button" title="Настройки" aria-label="Настройки" aria-pressed="false" aria-controls="vset"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
 </div></header>
 <main>
-<section id="vplay" class="view" role="tabpanel" aria-labelledby="tplay">
-<p class="sub">Голос считает четверти, а кед в шапке притопывает носком: вниз на цифру, вверх на «и».</p>
-<div class="card" id="pg"><div id="pgb" title="Нажмите, чтобы перейти к уроку"><i id="pgf"></i></div><div class="row" style="margin-top:8px;justify-content:space-between"><span id="pgt1"></span><span id="pgt2"></span><span id="pgt3"></span><span id="pgt4"></span></div></div>
+<section id="vplay" class="view" aria-label="Игра">
+<div class="card" id="pg"><div id="pgb" title="Нажмите, чтобы перейти к уроку"><i id="pgf"></i></div><div class="row" style="margin-top:6px;justify-content:space-between"><span id="pgt1"></span><span id="pgt2"></span><span id="pgt3"></span><span id="pgt4"></span></div></div>
 <div class="card">
 <div class="row"><label>Тема<select id="sx"></select></label><label>Рисунок<select id="sp"></select></label></div>
 <div class="ctl">
@@ -135,20 +144,23 @@ p.note{font-size:13px;color:var(--mut);margin:0 2px}
 </div>
 </div>
 </div>
-<div class="card">
-<div class="row" style="justify-content:space-between;align-items:center;min-height:40px"><div id="phase">Стоп</div><div id="bars" style="text-align:right"></div></div>
-<div id="pname" style="font-size:18px;font-weight:700;margin-top:8px"></div><div id="strip"></div>
+<div class="card" id="hud">
+<div class="stat"><div id="phase">Стоп</div><div id="bars"></div><div class="live"><div>Счёт<b id="hs"></b></div><div>Множитель<b id="hc"></b></div><div>Точность<b id="ha"></b></div></div></div>
+<div class="prow"><div id="pname"></div><button id="bhud" class="dot" type="button" title="Как читать окно" aria-label="Как читать окно" aria-expanded="false" aria-controls="hb">?</button></div>
+<div id="strip"></div>
+<div id="cbar" aria-hidden="true"></div>
+<canvas id="cv" style="width:100%;height:96px;display:block;margin-top:8px;border-radius:8px;background:var(--bg)"></canvas>
+<div id="hb" class="hint" role="note" hidden><b>Круги сверху</b> — что нужно сыграть, <b>ромбы снизу</b> — что вы сыграли. Зелёный: в точку, синий: рано или поздно, красный: мимо или лишняя нота. Красная линия — сейчас. Включите «Игра включена» в настройках и нажмите «Старт».</div>
+<div id="fb"></div>
 </div>
-<div class="card" id="hud"><h2>Сейчас</h2><div class="live"><div>Урок<b id="hl"></b></div><div>Счёт<b id="hs"></b></div><div>Множитель и серия<b id="hc"></b></div><div>Точность<b id="ha"></b></div></div><div id="cbar" aria-hidden="true"></div><canvas id="cv" style="width:100%;height:150px;display:block;margin-top:10px;border-radius:8px;background:var(--bg)"></canvas><div style="font-size:12px;color:var(--mut);margin-top:4px">Круги сверху: что нужно сыграть. Ромбы снизу: что вы сыграли. Зелёный: в точку, синий: рано или поздно, красный: мимо или лишняя нота. Красная линия: сейчас.</div><div id="fb"></div>
-<p class="note">Точность растёт за попадания в тактах «Играй»; каждые восемь нот подряд множитель становится больше. Включите «Игра с гитарой» в настройках и нажмите «Старт».</p></div>
 </section>
-<section id="vscore" class="view" role="tabpanel" aria-labelledby="tscore" hidden>
+<section id="vscore" class="view" aria-label="Счёт" hidden>
 <div class="card"><h2>Итог</h2><div class="live"><div>Собрано звёзд<b id="hst"></b></div><div>Рекорд счёта<b id="hh"></b></div></div>
 <div id="tm" style="font-size:14px;color:var(--mut);margin-top:10px"></div><div id="hg"></div><div class="row" id="hgl" style="justify-content:space-between;font-size:12px;color:var(--mut)"><span>рано, −100 мс</span><span>0</span><span>поздно, +100 мс</span></div>
-<p class="note" style="margin-top:8px">Тайминг считается по тактам «Играй». Счёт и звёзды живут на вкладке «Игра».</p></div>
+<p class="note" style="margin-top:8px">Тайминг считается по тактам «Играй». Счёт и звёзды живут на игровом экране.</p></div>
 <div class="card"><h2>Таблица рекордов</h2><table id="rt"><thead><tr><th>Урок</th><th>Темп</th><th class="n">Точность</th><th>Звёзды</th></tr></thead><tbody></tbody></table><p id="rte"></p></div>
 </section>
-<section id="vhelp" class="view" role="tabpanel" aria-labelledby="bhelp" hidden>
+<section id="vhelp" class="view" aria-label="Подсказки" hidden>
 <div class="card"><h2>Горячие клавиши</h2><dl>
 <dt><kbd>Пробел</kbd></dt><dd>старт и пауза</dd>
 <dt><kbd>Enter</kbd></dt><dd>откат к началу упражнения (с тактом счёта)</dd>
@@ -167,10 +179,11 @@ p.note{font-size:13px;color:var(--mut);margin:0 2px}
 <dt>Множитель</dt><dd>каждые восемь нот подряд повышают множитель счёта до x4</dd>
 </dl></div>
 </section>
-<section id="vset" class="view" role="tabpanel" aria-labelledby="bset" hidden>
+<section id="vset" class="view" aria-label="Настройки" hidden>
 <div class="card"><h2>Занятие</h2><div class="opt">
 <label><input type="checkbox" id="oloop">Повторять рисунок</label>
 <label><input type="checkbox" id="ocnt">Такт счёта перед стартом</label>
+<label><input type="checkbox" id="oret">После трёх неудач снова слушать</label>
 <label>Тактов счёта<select id="ocb"><option value="1">1</option><option value="2">2</option></select></label>
 <label>Слушаю, тактов<input type="number" id="oL" min="0" max="8"></label>
 <label>Играю, тактов<input type="number" id="oP" min="1" max="16"></label>
@@ -209,8 +222,7 @@ const PF={R:['11110','10001','10001','11110','10100','10010','10001'],
  m:['00000','11011','10101','10101','10101','10101','10101'],
  D:['11110','10001','10001','10001','10001','10001','11110'],
  o:['00000','01110','10001','10001','10001','10001','01110'],
- j:['00020','00000','00010','00010','00010','10010','01100'],
- '?':['01110','10001','00001','00110','01100','00000','01100']};
+ j:['00020','00000','00010','00010','00010','10010','01100']};
 const pxs=rows=>{let h='';rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(c=='1')h+=`<rect x="${x}" y="${y}" width="1" height="1" fill="currentColor"/>`;else if(c=='2')h+=`<rect x="${x}" y="${y}" width="1" height="1" fill="var(--need)"/>`}));return h};
 const SHOE=[
  '.....RRRRR....................',
@@ -236,7 +248,6 @@ function logoArt(){
 }
 {let x=0,h='';for(const ch of 'RitmDojo'){const gl=PF[ch];h+=`<g transform="translate(${x} 0)">${pxs(gl)}</g>`;x+=gl[0].length+1}
  $('wm').setAttribute('viewBox',`0 0 ${x-1} 7`);$('wm').innerHTML=h;
- $('bhelp').innerHTML=`<svg viewBox="0 0 5 7" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true">${pxs(PF['?'])}</svg>`;
  logoArt();
  $('cbar').innerHTML='<i></i>'.repeat(8)}
 const g=(s,st)=>{const r=[];[...s.replace(/ /g,'')].forEach((c,i)=>{if(c!='.')r.push([i*st,c=='X',st])});return r};
@@ -253,7 +264,7 @@ const EX=[
 {t:'Синкопа',l:[60,75,90],p:[['Только «и» всех долей',g('.X.X.X.X',H)],['1, 1и, 2и, 3, 4',e([0,.5,1.5,2,3],1)],['1, 2и, 3и, 4и',e([0,1.5,2.5,3.5],1)],['1, 2, 3и, 4и',e([0,1,2.5,3.5],1)],['3-3-3-3-4 шестнадцатыми',e([0,.75,1.5,2.25,3],1)]]}
 ];
 const B=[];EX.forEach((x,xi)=>x.p.forEach((p,pi)=>x.l.forEach((v,ti)=>B.push({xi,pi,ti,bpm:v}))));
-let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,GM:false,S:60,CAL:0,CALD:false,OUT:'',MIC:'',HI:0,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
+let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,GM:false,S:60,CAL:0,CALD:false,OUT:'',MIC:'',HI:0,ret:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
 try{const s=JSON.parse(localStorage.getItem('rt2')||'{}');if(s.opt)Object.assign(opt,s.opt);if(Number.isInteger(s.cur)&&B[s.cur])cur=s.cur;shift=Number(s.shift)||0}catch(_){}
 const save=()=>{try{localStorage.setItem('rt2',JSON.stringify({cur,shift,opt}))}catch(_){}};
 const bpmOf=i=>Math.max(30,Math.min(240,B[i].bpm+shift));
@@ -282,7 +293,7 @@ function say(t,txt){if(!opt.V)return;
  if(!SS)return;if(vt.length>64)vt=vt.slice(-32);
  vt.push(setTimeout(()=>{const u=new SpeechSynthesisUtterance(txt);u.lang='ru-RU';if(vox)u.voice=vox;u.rate=1.5;SS.cancel();SS.speak(u)},Math.max(0,(t-ctx.currentTime)*1000-opt.D)))}
 function killVoice(){vt.forEach(clearTimeout);vt=[];vs=null;if(SS)SS.cancel()}
-let nv=[],pv=[],bh=[],det=null,mode='',tbs=0,fbs=0,trkLat=0,xq=[],gs=null,R=null,score=0,combo=0,mic=null,proc=null,lv=0,lastOn=0,hist=[0,0,0,0,0,0],cal=null,inPlay=false,calTimer=null,micGen=0;
+let nv=[],pv=[],bh=[],det=null,mode='',tbs=0,fbs=0,trkLat=0,xq=[],gs=null,R=null,score=0,combo=0,mic=null,proc=null,lv=0,lastOn=0,hist=[0,0,0,0,0,0],cal=null,inPlay=false,calTimer=null,micGen=0,fails=0,forced=null;
 const calOff=()=>{const on=!!calTimer||!!cal;if(calTimer)clearTimeout(calTimer);calTimer=null;cal=null;return on};
 const thr=()=>.002*Math.pow(50,(100-opt.S)/100);
 const acc=s=>s?Math.max(0,(s.p+.6*s.g-.3*s.x)/Math.max(1,s.n)*100):0;
@@ -316,7 +327,13 @@ function recUpd(){const rows=Object.entries(opt.rec||{}).map(([bi,r])=>({bi:+bi,
  $('rt').tBodies[0].innerHTML=top.map(r=>{const b=B[r.bi],x=EX[b.xi];return `<tr><td>${r.bi+1}<span class="nm">${x.t}. ${x.p[b.pi][0]}</span></td><td class="n">${r.bpm}</td><td class="n">${r.a}%</td><td class="st">${'<b>★</b>'.repeat(r.st)}${'★'.repeat(Math.max(0,3-r.st))}</td></tr>`}).join('');
  $('rte').textContent=rows.length?`Лучшие ${top.length} из ${rows.length}. Рекорд обновляется по точности, звёзды не сбрасываются.`:'Рекордов пока нет: сыграйте уровень в тактах «Играй».';
  $('hst').textContent=Object.values(opt.best||{}).reduce((a,b)=>a+b,0)+' из '+B.length*3}
-function endBlock(bi){if(!gs||!gs.n)return'next';return result(bi).st?'next':'again'}
+function unforce(){if(forced===null)return;opt.L=forced;forced=null;const o=$('oL');if(o)o.value=opt.L;save()}
+function forceL(){if(forced===null&&opt.L<1){forced=opt.L;opt.L=1;save()}}
+function endBlock(bi){if(!gs||!gs.n)return'next';
+ const r=result(bi);
+ if(r.st){fails=0;unforce();return'next'}
+ if(++fails>=3&&opt.ret!==false)forceL();
+ return'again'}
 const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
 function stats(d){const n=d.length;if(!n)return null;const m=avg(d);let s2=0,s3=0,s4=0;for(const x of d){const e=x-m;s2+=e*e;s3+=e*e*e;s4+=e*e*e*e}const v=s2/n,sd=Math.sqrt(v);return{n,m,sd,sk:sd?s3/n/(sd*v):0,ku:sd?s4/n/(v*v)-3:0}}
 let tmG=null,tmN=-1;
@@ -334,9 +351,9 @@ function tmUpd(){const g=gs,n=g?g.d.length:0;if(g===tmG&&n===tmN)return;tmG=g;tm
  $('tm').innerHTML=t}
 let hudS='',hudC=-1,hudSc=-1,hudT=0;
 function hudUpd(){const s=gs||{p:0,g:0,m:0,x:0},j=s.p+s.g+s.m,a=j?Math.max(0,(s.p+.6*s.g-.3*s.x)/j*100):null;
- const l=(cur+1)+' из '+B.length,mc='x'+mult()+', серия '+combo,av=a==null?'-':Math.round(a)+'%',cls=a==null?'':a>=75?'hi':a<60?'lo':'';
- const key=l+score+mc+av+cls;
- if(key!=hudS){hudS=key;$('hl').textContent=l;$('hs').textContent=score;$('hc').textContent=mc;const A=$('ha');A.textContent=av;A.className=cls}
+ const mc='x'+mult()+', серия '+combo,av=a==null?'-':Math.round(a)+'%',cls=a==null?'':a>=75?'hi':a<60?'lo':'';
+ const key=score+mc+av+cls;
+ if(key!=hudS){hudS=key;$('hs').textContent=score;$('hc').textContent=mc;const A=$('ha');A.textContent=av;A.className=cls}
  const cn=combo%8||(combo?8:0);if(cn!=hudC){hudC=cn;[...$('cbar').children].forEach((e,i)=>e.classList.toggle('on',i<cn))}
  if(score!=hudSc){hudSc=score;$('hh').textContent=Math.max(opt.HI||0,score)}
  tmUpd()}
@@ -353,6 +370,8 @@ class Det{constructor(sr,post){this.sr=sr;this.post=post;this.n=Math.round(sr*.0
 const WK=Det.toString()+`registerProcessor('od',class extends AudioWorkletProcessor{constructor(){super();this.d=new Det(sampleRate,(f,p)=>this.port.postMessage({f,p}));this.c=0;this.port.onmessage=e=>{this.d.thr=e.data.thr}}process(i){const x=i[0][0];if(x){this.d.feed(x,currentFrame);if(++this.c%20==0)this.port.postMessage({l:this.d.env})}return true}});`;
 const sendThr=()=>{if(proc&&proc.port)proc.port.postMessage({thr:thr()});if(det)det.thr=thr()};
 function lat(){if(opt.CALD)return opt.CAL;return Math.round(((ctx&&(ctx.outputLatency||ctx.baseLatency))||0)*1000+trkLat)}
+// время, которое слушатель слышит прямо сейчас: минус задержка вывода, плюс половина кадра, чтобы кед не отставал
+const visT=t=>t-(((ctx&&(ctx.outputLatency||ctx.baseLatency))||0)-.008);
 function latUpd(){$('lst').textContent='Задержка выход+вход: '+lat()+' мс ('+(opt.CALD?'по калибровке':'оценка браузера, лучше откалибровать')+'). Детектор: '+(mode=='worklet'?'AudioWorklet, ожидаемая точность 1–2 мс':mode=='script'?'ScriptProcessor, точность около 6 мс':'выключен')}
 async function micOn(){micOff();const gen=micGen;try{
  const st=await navigator.mediaDevices.getUserMedia({audio:{deviceId:opt.MIC?{exact:opt.MIC}:undefined,echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1,latency:0}});
@@ -369,7 +388,8 @@ async function micOn(){micOff();const gen=micGen;try{
  if(c.setSinkId&&outs.length){$('lout').style.display='flex';$('mout').innerHTML=outs.map(x=>`<option value="${x.deviceId}">${x.label||'Выход'}</option>`).join('');if(opt.OUT){$('mout').value=opt.OUT;c.setSinkId(opt.OUT).catch(()=>{})}}
  $('mst').textContent='Вход включён. Сыграйте ноту: полоска справа должна заходить за метку.';latUpd()}
  catch(e){if(gen!==micGen)return;micOff();opt.GM=false;$('ogm').checked=false;$('mst').textContent='Вход недоступен ('+(e.name||e)+'). Разрешите микрофон в настройках браузера и откройте страницу по https или на localhost.';save()}}
-function sizeCv(rw){const c=$('cv'),dp=Math.min(2,devicePixelRatio||1);c.dataset.w=rw;c.width=Math.round(rw*dp);c.height=Math.round(150*dp);c.getContext('2d').setTransform(dp,0,0,dp,0,0)}
+const CH=96;
+function sizeCv(rw){const c=$('cv'),dp=Math.min(2,devicePixelRatio||1);c.dataset.w=rw;c.width=Math.round(rw*dp);c.height=Math.round(CH*dp);c.getContext('2d').setTransform(dp,0,0,dp,0,0)}
 let CC=null,cvW=0,barr=[];
 const colors=()=>{if(CC)return CC;const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();
  return CC={fg:g('--fg'),mut:g('--mut'),need:g('--need'),ok:g('--ok'),lis:g('--lis')}};
@@ -379,10 +399,10 @@ matchMedia('(prefers-color-scheme:dark)').addEventListener('change',themeOff);
 const cvRO=new ResizeObserver(es=>{const w=Math.round(es[0].contentRect.width);if(w==cvW)return;cvW=w;if(w){sizeCv(w);if(!$('vplay').hidden)draw(ctx?ctx.currentTime:0,60/bpmOf(cur))}});
 function draw(now,spb){const c=$('cv'),g=c.getContext('2d');let W=cvW;
  if(!W){W=cvW=Math.round(c.getBoundingClientRect().width);if(!W)return}
- const H=150;if(c.dataset.w!=W)sizeCv(W);
+ const H=CH;if(c.dataset.w!=W)sizeCv(W);
  const C=colors();g.clearRect(0,0,W,H);
- now-=(ctx&&(ctx.outputLatency||ctx.baseLatency))||0;
- const span=6*spb,nx=.28*W,pps=W/span,X=t=>nx+(t-now)*pps,y1=44,y2=108;
+ now-=((ctx&&(ctx.outputLatency||ctx.baseLatency))||0)-.008;
+ const span=6*spb,nx=.28*W,pps=W/span,X=t=>nx+(t-now)*pps,y1=26,y2=66;
  compact(nv,n=>n.t>now-6);compact(pv,p=>p.t>now-6);compact(bh,b=>b.t+4*b.spb>now-6);
  const bars=barr;bars.length=0;for(const b of bh)bars.push(b);if(bars.length){const l=bars[bars.length-1];for(let t=l.t+4*l.spb;t<now+span;t+=4*l.spb)bars.push({t,spb:l.spb})}
  for(const b of bars)for(let i=0;i<8;i++){const x=X(b.t+i*b.spb/2);if(x<0||x>W)continue;g.globalAlpha=i==0?.7:i%2==0?.4:.25;g.fillStyle=i==0?C.fg:C.mut;g.fillRect(x-(i==0?1:.5),0,i==0?2:1,H)}
@@ -395,8 +415,8 @@ function draw(now,spb){const c=$('cv'),g=c.getContext('2d');let W=cvW;
  for(const p of pv){const x=X(p.t),cc=p.r=='p'||p.r=='g'?C.ok:p.r=='x'?C.need:p.r=='o'?C.mut:C.lis;
   if(p.e){g.strokeStyle=cc;g.lineWidth=2;g.beginPath();g.moveTo(X(p.e.t),y1+12);g.lineTo(x,y2-12);g.stroke()}
   g.fillStyle=cc;g.beginPath();g.moveTo(x,y2-11);g.lineTo(x+9,y2);g.lineTo(x,y2+11);g.lineTo(x-9,y2);g.fill();
-  if(p.d!=null){g.fillStyle=C.fg;g.font='11px system-ui';g.textAlign='center';g.fillText((p.d>0?'+':'')+Math.round(p.d),x,y2+26)}}
- g.fillStyle=C.need;g.fillRect(nx-1,0,2,H);g.fillStyle=C.mut;g.font='12px system-ui';g.textAlign='left';g.fillText('Нужно',6,14);g.fillText('Сыграно',6,H-8)}
+  if(p.d!=null){g.fillStyle=C.fg;g.font='11px system-ui';g.textAlign='center';g.fillText((p.d>0?'+':'')+Math.round(p.d),x,y2+22)}}
+ g.fillStyle=C.need;g.fillRect(nx-1,0,2,H)}
 function micOff(){micGen++;const on=calOff();if(on)$('mst').textContent='Калибровка отменена';try{if(mic)mic.st.getTracks().forEach(t=>t.stop());if(proc)proc.disconnect()}catch(_){}mic=proc=null;det=null;mode='';latUpd();return on}
 function calib(){if(!mic){$('mst').textContent='Сначала включите игру';return}
  calOff();stop();kill();const t0=ctx.currentTime+1.2,cl=[];for(let i=0;i<12;i++){const t=t0+i*.75;cl.push(t);click(t,i%4?2000:2400,.8)}
@@ -410,10 +430,11 @@ async function loadE(){for(const k in VF){try{const r=await fetch(VF[k]);if(r.ok
 const lvl=pl=>opt.N&&(!pl||opt.NP)?opt.NG/100:0;
 function applyBus(){if(!ctx||!nb)return;const now=ctx.currentTime,c=bq.find(x=>x.t0<=now&&now<x.t1);nb.gain.cancelScheduledValues(now);nb.gain.setValueAtTime(lvl(c?c.play:false),now);bq.filter(x=>x.t0>now).forEach(x=>nb.gain.setValueAtTime(lvl(x.play),x.t0))}
 function sched(){
- const TOT=opt.L+opt.P+(opt.GM?1:0);
+ let TOT=opt.L+opt.P+(opt.GM?1:0);
  if(k>=TOT){
   if(opt.GM){if(endBlock(sc)=='next'){if(sc<B.length-1)sc++;else{stop();return}}k=0}
   else if(opt.loop)k=0;else if(sc<B.length-1){sc++;k=0}else{stop();return}
+  TOT=opt.L+opt.P+(opt.GM?1:0);
  }
  const b=B[sc],spb=60/bpmOf(sc),O=opt.O,half=k<0&&opt.CB>1&&k==-opt.CB;
  q.push({t:nextT,bi:sc,k,spb,tot:TOT});if(opt.GM)bh.push({t:nextT,spb});
@@ -434,12 +455,13 @@ function kill(){killVoice();if(out){out.gain.value=0;out.disconnect()}
  cb=ctx.createGain();cp=ctx.createStereoPanner();cp.pan.value=-.45;cb.connect(cp);cp.connect(out);bq=[]}
 function start(c){
  if(calOff())$('mst').textContent='Калибровка отменена';
+ fails=0;unforce();
  if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.resume();
  if(opt.GM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-opt.CB:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
  clearInterval(timer);timer=setInterval(tick,40);tick();playUI(1);
 }
 function playUI(on){$('bplay').classList.toggle('on',!!on);$('bplaytx').textContent=on?'Пауза (пробел)':'Старт (пробел)'}
-function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];playUI(0);$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
+function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];fails=0;unforce();playUI(0);$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
  if(gsp.length)gsp.forEach(s=>s.classList.remove('now'));nowIdx=-1;lastK=-9;lastPh='';lastPct=-1;$('strip').classList.remove('mute');foot(0);$('fb').textContent='';$('fb').className=''}
 
 function drawStrip(p){
@@ -468,10 +490,10 @@ function showBlock(){
 let gsp=[],nowIdx=-1,lastK=-9,lastPh='',lastPct=-1;
 function frame(){
  requestAnimationFrame(frame);if(!playing||!ctx)return;
- const now=ctx.currentTime;while(q.length>1&&q[1].t<=now)q.shift();
- const it=q[0];if(!it||it.t>now)return;
+ const now=ctx.currentTime,vis=visT(now);while(q.length>1&&q[1].t<=vis)q.shift();
+ const it=q[0];if(!it||it.t>vis)return;
  if(it.bi!=cur){cur=it.bi;showBlock()}
- const f=Math.min(1,(now-it.t)/(4*it.spb));prog(it,f);foot(f);inPlay=it.k>=opt.L&&it.k<opt.L+opt.P;if(opt.GM)gameTick(it,now);
+ const f=Math.min(1,Math.max(0,(vis-it.t)/(4*it.spb)));prog(it,f);foot(f);inPlay=it.k>=opt.L&&it.k<opt.L+opt.P;if(opt.GM)gameTick(it,now);
  const ph=$('ph');if(ph){const pc=Math.round(f*100);if(pc!=lastPct){lastPct=pc;ph.style.left=pc+'%'}}
  const lis=it.k>=0&&it.k<opt.L,rs=it.k>=opt.L+opt.P;
  const pt=it.k<0?'Счёт':rs?'Итог':lis?'Слушай':'Играй';
@@ -490,25 +512,16 @@ $('sx').innerHTML=EX.map((x,i)=>`<option value="${i}">${i+1}. ${x.t}</option>`).
 $('sx').onchange=ev=>{jump(+ev.target.value,0,0);ev.target.blur()};
 $('sp').onchange=ev=>{jump(B[cur].xi,+ev.target.value,0);ev.target.blur()};
 $('tempos').onclick=ev=>{const t=ev.target.dataset.t;if(t!==undefined)jump(B[cur].xi,B[cur].pi,+t)};
-const IP={play:['##.....','###....','####...','#####..','####...','###....','##.....'],
- pause:['##..##','##..##','##..##','##..##','##..##','##..##','##..##'],
- prev:['#......##','#.....###','#....####','#...#####','#....####','#.....###','#......##'],
- next:['##......#','###.....#','####....#','#####...#','####....#','###.....#','##......#']};
-const rstRows=()=>{const W=9,H=8,rows=Array.from({length:H},()=>Array(W).fill('.'));
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){const dx=x+.5-4,dy=y+.5-3.5,d=Math.hypot(dx,dy),a=Math.atan2(dy,dx);
-  if(d>2.1&&d<3.5&&!(a>-1.6&&a<-.1))rows[y][x]='#'}
- [[6,0],[7,0],[5,1],[6,1],[7,1],[8,1],[6,2],[7,2]].forEach(p=>{rows[p[1]][p[0]]='#'});
- return rows.map(r=>r.join(''))};
-const ic=(rows,cls)=>`<svg class="${cls||''}" viewBox="0 0 ${rows[0].length} ${rows.length}" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">${rows.map((r,y)=>[...r].map((c,x)=>c=='#'?`<rect x="${x}" y="${y}" width="1" height="1"/>`:'').join('')).join('')}</svg>`;
-$('bprev').insertAdjacentHTML('afterbegin',ic(IP.prev));
-$('brst').insertAdjacentHTML('afterbegin',ic(rstRows()));
-$('bplay').insertAdjacentHTML('afterbegin',ic(IP.play,'i-play')+ic(IP.pause,'i-pause'));
-$('bnext').insertAdjacentHTML('afterbegin',ic(IP.next));
+const ic=(body,cls,fill)=>`<svg${cls?` class="${cls}"`:''} viewBox="0 0 24 24" ${fill?'fill="currentColor" stroke="none"':'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"'} aria-hidden="true">${body}</svg>`;
+$('bprev').insertAdjacentHTML('afterbegin',ic('<polygon points="19 20 9 12 19 4"/><line x1="5" y1="19" x2="5" y2="5"/>'));
+$('brst').insertAdjacentHTML('afterbegin',ic('<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>'));
+$('bplay').insertAdjacentHTML('afterbegin',ic('<polygon points="6 3 20 12 6 21"/>','i-play',1)+ic('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>','i-pause',1));
+$('bnext').insertAdjacentHTML('afterbegin',ic('<polygon points="5 4 15 12 5 20"/><line x1="19" y1="5" x2="19" y2="19"/>'));
 $('bprev').onclick=()=>go(cur-1);$('bnext').onclick=()=>go(cur+1);$('brst').onclick=()=>{playing?start(true):start(true)};
 $('bplay').onclick=toggle;$('m5').onclick=()=>setShift(-5);$('p5').onclick=()=>setShift(5);
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('button');if(b)b.blur()});
-$('oloop').checked=opt.loop;$('ocnt').checked=opt.count;$('ocb').value=opt.CB;$('ocb').disabled=!opt.count;$('oL').value=opt.L;$('oP').value=opt.P;
-$('oloop').onchange=ev=>{opt.loop=ev.target.checked;save()};$('ocnt').onchange=ev=>{opt.count=ev.target.checked;$('ocb').disabled=!opt.count;save()};
+$('oloop').checked=opt.loop;$('ocnt').checked=opt.count;$('oret').checked=opt.ret!==false;$('ocb').value=opt.CB;$('ocb').disabled=!opt.count;$('oL').value=opt.L;$('oP').value=opt.P;
+$('oloop').onchange=ev=>{opt.loop=ev.target.checked;save()};$('oret').onchange=ev=>{opt.ret=ev.target.checked;save()};$('ocnt').onchange=ev=>{opt.count=ev.target.checked;$('ocb').disabled=!opt.count;save()};
 $('ocb').onchange=ev=>{opt.CB=Math.max(1,Math.min(2,+ev.target.value||1));ev.target.value=opt.CB;save()};
 $('oL').onchange=ev=>{opt.L=Math.max(0,Math.min(8,+ev.target.value||0));ev.target.value=opt.L;save()};
 $('oP').onchange=ev=>{opt.P=Math.max(1,Math.min(16,+ev.target.value||1));ev.target.value=opt.P;save()};
@@ -545,6 +558,7 @@ foot(0);loadE();
 addEventListener('keydown',ev=>{
  if(ev.target.tagName=='INPUT'&&(ev.target.type=='number'||ev.target.type=='range'))return;
  if(ev.metaKey||ev.ctrlKey||ev.altKey)return;
+ if(ev.code=='Escape'&&!$('hb').hidden){hint(false);return}
  if(ev.target.tagName=='BUTTON'&&(ev.code=='Space'||ev.code=='Enter'||ev.code=='NumpadEnter'))return;
  const c=ev.code,m={Space:toggle,Enter:()=>start(true),NumpadEnter:()=>start(true),ArrowLeft:()=>go(cur-1),ArrowRight:()=>go(cur+1),ArrowUp:()=>pat(-1),ArrowDown:()=>pat(1),
  Minus:()=>setShift(-5),Equal:()=>setShift(5),NumpadSubtract:()=>setShift(-5),NumpadAdd:()=>setShift(5),
@@ -553,17 +567,20 @@ addEventListener('keydown',ev=>{
  if(m[c]){m[c]();ev.preventDefault()}
 });
 const VIEWS=['vplay','vscore','vset','vhelp'];
+const hint=on=>{const h=$('hb'),b=$('bhud');if(!h)return;h.hidden=!on;b.setAttribute('aria-expanded',!!on);b.classList.toggle('on',!!on)};
 function showView(v){
  if(!VIEWS.includes(v))v='vplay';
  VIEWS.forEach(x=>$(x).hidden=x!==v);
- $('tplay').classList.toggle('on',v=='vplay');$('tplay').setAttribute('aria-selected',v=='vplay');
- $('tscore').classList.toggle('on',v=='vscore');$('tscore').setAttribute('aria-selected',v=='vscore');
+ const t=$('tscore');t.classList.toggle('on',v=='vscore');t.setAttribute('aria-pressed',v=='vscore');
  $('bset').setAttribute('aria-pressed',v=='vset');
  $('bhelp').setAttribute('aria-pressed',v=='vhelp');
+ if(v!='vplay')hint(false);
  if(v=='vscore'){hudUpd();recUpd()}
  if(v=='vplay')draw(ctx?ctx.currentTime:0,60/bpmOf(cur));
 }
-$('tplay').onclick=()=>showView('vplay');$('tscore').onclick=()=>showView('vscore');
+$('tscore').onclick=()=>showView($('tscore').getAttribute('aria-pressed')=='true'?'vplay':'vscore');
+$('bhud').onclick=()=>hint($('hb').hidden);
+document.addEventListener('click',ev=>{if(!$('hb').hidden&&ev.target!==$('bhud')&&!$('hb').contains(ev.target))hint(false)});
 $('bset').onclick=()=>showView($('bset').getAttribute('aria-pressed')=='true'?'vplay':'vset');
 $('bhelp').onclick=()=>showView($('bhelp').getAttribute('aria-pressed')=='true'?'vplay':'vhelp');
 showBlock();recUpd();hudUpd();cvRO.observe($('cv'));requestAnimationFrame(frame);

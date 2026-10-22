@@ -1,5 +1,5 @@
 // RitmDojo: офлайн-кэш. Поменяйте VERSION при обновлении index.html, чтобы клиенты взяли новую версию.
-const VERSION = 'ritmdojo-v9';
+const VERSION = 'ritmdojo-v10';
 const SHELL = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
   'voice/raz.mp3', 'voice/dva.mp3', 'voice/tri.mp3', 'voice/chetyre.mp3', 'voice/i.mp3'];
 self.addEventListener('install', e => {

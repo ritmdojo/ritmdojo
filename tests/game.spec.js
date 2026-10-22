@@ -309,7 +309,6 @@ test.describe('режим игры: оценка и статистика', () =>
         hi: opt.HI,
         score,
         hud: {
-          level: document.getElementById('hl').textContent,
           score: document.getElementById('hs').textContent,
           combo: document.getElementById('hc').textContent,
           accuracy: document.getElementById('ha').textContent,
@@ -324,7 +323,7 @@ test.describe('режим игры: оценка и статистика', () =>
     expect(data.best).toBe(1);
     expect(data.hi).toBe(310);
     expect(data.score).toBe(310);
-    expect(data.hud).toEqual({ level: '1 из 123', score: '310', combo: 'x1, серия 0', accuracy: '78%', stars: '1 из 369', high: '310' });
+    expect(data.hud).toEqual({ score: '310', combo: 'x1, серия 0', accuracy: '78%', stars: '1 из 369', high: '310' });
   });
 
   test('порог звёзд и множитель комбо', async ({ page }) => {
@@ -534,6 +533,40 @@ test.describe('режим игры: воспроизведение и калиб
     await expect(page.locator('#phase')).toHaveText('Играй', { timeout: 5000 });
     expect(await page.evaluate(() => ({ sc, cur }))).toEqual({ sc: 2, cur: 2 });
     await page.locator('#bplay').click();
+  });
+
+  test('после трёх неудач следующий тейк начинается со слушания', async ({ page }) => {
+    await boot(page, gameState({ ret: true }));
+    const out = await page.evaluate(() => {
+      const step = ok => {
+        gs = { n: 1, p: ok ? 1 : 0, g: 0, x: 0, m: ok ? 0 : 1, d: [] };
+        R = null;
+        return { res: endBlock(2), L: opt.L, fails, saved: JSON.parse(localStorage.getItem('rt2')).opt.L };
+      };
+      const one = step(false), two = step(false), three = step(false), pass = step(true);
+      return { one, two, three, pass };
+    });
+    expect(out.one).toMatchObject({ res: 'again', L: 0, fails: 1 });
+    expect(out.two).toMatchObject({ res: 'again', L: 0, fails: 2 });
+    expect(out.three).toMatchObject({ res: 'again', L: 1, fails: 3, saved: 1 });
+    expect(out.pass).toMatchObject({ res: 'next', L: 0, fails: 0, saved: 0 });
+  });
+
+  test('повторное слушание можно выключить в настройках', async ({ page }) => {
+    await boot(page, gameState({ ret: false, L: 0 }));
+    await openTab(page, 'settings');
+    await expect(page.locator('#oret')).not.toBeChecked();
+    const out = await page.evaluate(() => {
+      const out = [];
+      for (let i = 0; i < 4; i++) {
+        gs = { n: 1, p: 0, g: 0, x: 0, m: 1, d: [] };
+        R = null;
+        out.push(endBlock(2));
+      }
+      return { out, L: opt.L };
+    });
+    expect(out.out).toEqual(['again', 'again', 'again', 'again']);
+    expect(out.L).toBe(0);
   });
 
   test('калибровка по щелчкам сохраняет задержку', async ({ page }) => {

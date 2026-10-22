@@ -31,14 +31,18 @@ async function readState(page) {
   }));
 }
 
-const TABS = { play: '#tplay', score: '#tscore' };
+const TOGGLES = { play: ['#tscore', '#bset', '#bhelp'], score: ['#tscore'], settings: ['#bset'], help: ['#bhelp'] };
+
+const pressed = async (page, id) => (await page.locator(id).getAttribute('aria-pressed')) === 'true';
 
 async function openTab(page, name) {
-  if (name === 'settings') {
-    if (await page.locator('#bset').getAttribute('aria-pressed') !== 'true') await page.locator('#bset').click();
+  const ids = TOGGLES[name];
+  if (!ids) throw new Error('неизвестный экран: ' + name);
+  if (name === 'play') {
+    for (const id of ids) if (await pressed(page, id)) await page.locator(id).click();
     return;
   }
-  await page.locator(TABS[name]).click();
+  if (!(await pressed(page, ids[0]))) await page.locator(ids[0]).click();
 }
 
 async function openDetails(page, title) {

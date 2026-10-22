@@ -60,6 +60,20 @@ test.describe('оформление и адаптивность', () => {
     await expect(page.locator('#strip')).toBeVisible();
   });
 
+  test('игровой экран помещается по высоте без прокрутки', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await boot(page);
+    const m = await page.evaluate(() => ({
+      scroll: document.documentElement.scrollHeight,
+      inner: window.innerHeight,
+      fb: Math.round(document.getElementById('fb').getBoundingClientRect().bottom),
+      canvas: Math.round(document.getElementById('cv').getBoundingClientRect().height),
+    }));
+    expect(m.scroll).toBeLessThanOrEqual(m.inner + 1);
+    expect(m.fb).toBeLessThanOrEqual(m.inner);
+    expect(m.canvas).toBe(96);
+  });
+
   test('фокус виден на элементах управления', async ({ page }) => {
     await boot(page);
     await page.locator('#bplay').focus();

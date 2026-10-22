@@ -8,14 +8,14 @@ const fast = {
 };
 
 test.describe('вкладки, шапка и логотип', () => {
-  test('по умолчанию открыта игра, шапка содержит пиксельные иконки', async ({ page }) => {
+  test('по умолчанию открыта игра, шапка содержит название и обычные иконки', async ({ page }) => {
     const errors = watchErrors(page);
     await boot(page);
     await expect(page.locator('#vplay')).toBeVisible();
     await expect(page.locator('#vscore')).toBeHidden();
     await expect(page.locator('#vset')).toBeHidden();
-    await expect(page.locator('#tplay')).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('#tscore')).toHaveAttribute('aria-selected', 'false');
+    await expect(page.locator('#tplay')).toHaveCount(0);
+    await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('h1')).toHaveText('RitmDojo');
 
@@ -25,12 +25,14 @@ test.describe('вкладки, шапка и логотип', () => {
       return {
         logoRects: document.querySelectorAll('#logo rect').length,
         wordRects: document.querySelectorAll('#wm rect').length,
-        gearRects: document.querySelectorAll('#bset svg rect').length,
-        helpRects: document.querySelectorAll('#bhelp svg rect').length,
+        gearPaths: document.querySelectorAll('#bset svg path, #bset svg circle').length,
+        gearCrisp: document.getElementById('bset').querySelector('svg').getAttribute('shape-rendering'),
+        helpSvg: document.querySelectorAll('#bhelp svg').length,
+        helpText: document.getElementById('bhelp').textContent.trim(),
         crisp: document.getElementById('logo').getAttribute('shape-rendering'),
         wordCrisp: document.getElementById('wm').getAttribute('shape-rendering'),
-        logoBeforeTabs: before('logo', 'tplay'),
-        tabsBeforeHelp: before('tscore', 'bhelp'),
+        logoBeforeScore: before('logo', 'tscore'),
+        scoreBeforeHelp: before('tscore', 'bhelp'),
         helpBeforeGear: before('bhelp', 'bset'),
         gearLast: document.querySelector('.topin').lastElementChild.id,
         shoe: getComputedStyle(document.querySelector('#lfoot g rect')).fill,
@@ -38,12 +40,14 @@ test.describe('вкладки, шапка и логотип', () => {
     });
     expect(art.logoRects).toBeGreaterThan(14);
     expect(art.wordRects).toBeGreaterThan(50);
-    expect(art.gearRects).toBeGreaterThan(20);
-    expect(art.helpRects).toBeGreaterThan(10);
+    expect(art.gearPaths).toBeGreaterThanOrEqual(2);
+    expect(art.gearCrisp).toBeNull();
+    expect(art.helpSvg).toBe(0);
+    expect(art.helpText).toBe('?');
     expect(art.crisp).toBe('crispEdges');
     expect(art.wordCrisp).toBe('crispEdges');
-    expect(art.logoBeforeTabs).toBe(true);
-    expect(art.tabsBeforeHelp).toBe(true);
+    expect(art.logoBeforeScore).toBe(true);
+    expect(art.scoreBeforeHelp).toBe(true);
     expect(art.helpBeforeGear).toBe(true);
     expect(art.gearLast).toBe('bset');
     expect(art.shoe).toMatch(/^rgb/);
@@ -90,7 +94,7 @@ test.describe('вкладки, шапка и логотип', () => {
     await expect(page.locator('#vset')).toBeVisible();
     await expect(page.locator('#vplay')).toBeHidden();
     await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('#tplay')).toHaveAttribute('aria-selected', 'false');
+    await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#oloop')).toBeVisible();
     await page.locator('#bset').click();
     await expect(page.locator('#vplay')).toBeVisible();
@@ -98,9 +102,9 @@ test.describe('вкладки, шапка и логотип', () => {
     await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'false');
   });
 
-  test('вкладка «Счёт» показывает результат и скрывает остальные экраны', async ({ page }) => {
+  test('«Счёт» работает переключателем, как «?» и шестерёнка', async ({ page }) => {
     await boot(page);
-    await openTab(page, 'score');
+    await page.locator('#tscore').click();
     await expect(page.locator('#vscore')).toBeVisible();
     await expect(page.locator('#rt')).toBeVisible();
     await expect(page.locator('#hst')).toBeVisible();
@@ -108,25 +112,42 @@ test.describe('вкладки, шапка и логотип', () => {
     await expect(page.locator('#hud')).toBeHidden();
     await expect(page.locator('#vplay')).toBeHidden();
     await expect(page.locator('#vset')).toBeHidden();
-    await expect(page.locator('#tscore')).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('#tplay')).toHaveAttribute('aria-selected', 'false');
+    await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'false');
-    await openTab(page, 'play');
+    await page.locator('#tscore').click();
     await expect(page.locator('#vplay')).toBeVisible();
     await expect(page.locator('#vscore')).toBeHidden();
+    await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('«Счёт» закрывается при переходе в настройки и подсказки', async ({ page }) => {
+    await boot(page);
+    await openTab(page, 'score');
+    await expect(page.locator('#vscore')).toBeVisible();
+    await openTab(page, 'settings');
+    await expect(page.locator('#vscore')).toBeHidden();
+    await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'true');
+    await openTab(page, 'play');
+    await expect(page.locator('#vplay')).toBeVisible();
+    await expect(page.locator('#bset')).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('управление перенесено в карточку урока и стало иконками', async ({ page }) => {
     await boot(page);
     const layout = await page.evaluate(() => {
+      const ids = ['bprev', 'brst', 'bplay', 'bnext'];
       const card = document.getElementById('bplay').closest('.card');
       return {
         inCard: !!card,
-        sameCard: card && card.contains(document.getElementById('bprev')) && card.contains(document.getElementById('brst')) && card.contains(document.getElementById('bnext')),
+        sameCard: ids.every(id => card && card.contains(document.getElementById(id))),
         oldRow: document.querySelectorAll('.tr').length,
         icons: document.querySelectorAll('#bprev svg, #brst svg, #bnext svg').length,
         playIcons: document.querySelectorAll('#bplay svg').length,
         chips: document.querySelectorAll('#tempos .chip').length,
+        heights: ids.map(id => Math.round(document.getElementById(id).getBoundingClientRect().height)),
+        prevStroke: document.querySelector('#bprev svg').getAttribute('stroke'),
+        playFill: document.querySelector('#bplay svg').getAttribute('fill'),
       };
     });
     expect(layout.inCard).toBe(true);
@@ -135,8 +156,39 @@ test.describe('вкладки, шапка и логотип', () => {
     expect(layout.icons).toBe(3);
     expect(layout.playIcons).toBe(2);
     expect(layout.chips).toBe(3);
+    expect(new Set(layout.heights).size).toBe(1);
+    expect(layout.heights[0]).toBeGreaterThanOrEqual(36);
+    expect(layout.prevStroke).toBe('currentColor');
+    expect(layout.playFill).toBe('currentColor');
     await expect(page.locator('#bplay')).toHaveText('Старт (пробел)');
     await expect(page.locator('#bplay')).toHaveAttribute('aria-label', /Старт/);
+  });
+
+  test('подсказки игрового окна прячутся в кружок ? и не занимают высоту', async ({ page }) => {
+    await boot(page);
+    await expect(page.locator('#hb')).toBeHidden();
+    await expect(page.locator('#bhud')).toHaveAttribute('aria-expanded', 'false');
+    const before = await page.evaluate(() => document.getElementById('hud').getBoundingClientRect().height);
+    await page.locator('#bhud').click();
+    await expect(page.locator('#hb')).toBeVisible();
+    await expect(page.locator('#bhud')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('#hb')).toContainText('Круги сверху');
+    const shown = await page.evaluate(() => {
+      const el = document.getElementById('hb');
+      return {
+        pos: getComputedStyle(el).position,
+        card: document.getElementById('hud').getBoundingClientRect().height,
+        onCard: Math.abs(el.getBoundingClientRect().top - document.getElementById('hud').getBoundingClientRect().top) < 200,
+      };
+    });
+    expect(shown.pos).toBe('absolute');
+    expect(shown.onCard).toBe(true);
+    expect(Math.abs(shown.card - before)).toBeLessThan(1);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#hb')).toBeHidden();
+    await page.locator('#bhud').click();
+    await page.locator('#pname').click();
+    await expect(page.locator('#hb')).toBeHidden();
   });
 
   test('переключение вкладок не сбрасывает урок и настройки', async ({ page }) => {

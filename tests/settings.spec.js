@@ -183,6 +183,7 @@ test.describe('настройки и сохранения', () => {
     expect(state.opt.zzz).toBe('ignored');
     await expect(page.locator('#oL')).toHaveValue('1');
     await expect(page.locator('#oP')).toHaveValue('4');
+    await expect(page.locator('#oret')).toBeChecked();
   });
 
   test('битый JSON и нечисловой shift не ломают загрузку', async ({ page }) => {
@@ -212,7 +213,7 @@ test.describe('настройки и сохранения', () => {
     await expect(page.locator('#hst')).toBeVisible();
     await expect(page.locator('#rt')).toBeVisible();
     await expect(page.locator('#hud')).toBeHidden();
-    await expect(page.locator('#tscore')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#mst')).toHaveText('Нажмите Старт, чтобы включить вход');
     await expect(page.locator('#ogm')).toBeChecked();
   });

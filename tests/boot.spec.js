@@ -7,7 +7,6 @@ test.describe('загрузка и исходное состояние', () => {
     await boot(page);
     await expect(page).toHaveTitle('RitmDojo: ритм-тренажёр для гитары');
     await expect(page.locator('h1')).toHaveText('RitmDojo');
-    await expect(page.locator('p.sub')).toContainText('Голос считает четверти');
     await expect(page.locator('link[rel=manifest]')).toHaveAttribute('href', 'manifest.json');
     await expect(page.locator('link[rel=icon]')).toHaveAttribute('href', 'icon-192.png');
     await expect(page.locator('link[rel=apple-touch-icon]')).toHaveAttribute('href', 'apple-touch-icon.png');
@@ -90,12 +89,14 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#strip .ft span.d')).toHaveCount(4);
     await expect(page.locator('#strip #ph')).toHaveAttribute('style', 'left:0%');
     await expect(page.locator('#strip')).not.toHaveClass(/mute/);
-    await expect(page.locator('#hl')).toHaveText('1 из 123');
     await expect(page.locator('#hs')).toHaveText('0');
     await expect(page.locator('#hc')).toHaveText('x1, серия 0');
     await expect(page.locator('#ha')).toHaveText('-');
     await expect(page.locator('#hst')).toHaveText('0 из 369');
     await expect(page.locator('#hh')).toHaveText('0');
+    await expect(page.locator('#vplay h2')).toHaveCount(0);
+    await expect(page.locator('#cv')).toBeVisible();
+    expect(await page.evaluate(() => document.getElementById('cv').height)).toBeGreaterThan(0);
     await expect(page.locator('#hg i')).toHaveCount(21);
     await expect(page.locator('#tm')).toHaveText('Тайминг: пока нет данных');
     await expect(page.locator('#lst')).toContainText('Детектор: выключен');

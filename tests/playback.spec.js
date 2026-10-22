@@ -236,6 +236,17 @@ test.describe('планировщик и воспроизведение', () => 
     expect(second).toBeLessThanOrEqual(first + 1);
   });
 
+  test('кадр считает время с поправкой на задержку вывода', async ({ page }) => {
+    await boot(page);
+    const r = await page.evaluate(() => {
+      const c = ac();
+      Object.defineProperty(c, 'outputLatency', { value: .05, configurable: true });
+      return { lead: visT(10), plain: 10 - .05, lat: lat() };
+    });
+    expect(r.lead - r.plain).toBeCloseTo(.008, 9);
+    expect(r.lat).toBeGreaterThanOrEqual(50);
+  });
+
   test('foot притопывает кедом в логотипе', async ({ page }) => {
     await boot(page);
     const poses = await page.evaluate(() => {
