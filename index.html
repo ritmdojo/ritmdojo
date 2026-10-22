@@ -22,12 +22,13 @@
 </div></header>
 <main>
 <section id="vplay" class="view" aria-label="Игра">
-<div class="card" id="pg"><div id="pgb" title="Нажмите, чтобы перейти к уроку"><i id="pgf"></i></div><div class="row" style="margin-top:6px;justify-content:space-between"><span id="pgt1"></span><span id="pgt2"></span><span id="pgt3"></span><span id="pgt4"></span></div></div>
+<div class="card" id="pg"><div id="pgb" title="Нажмите, чтобы перейти к уроку"><i id="pgf"></i></div><div class="row pgr"><span id="pgt1"></span><span id="pgt2"></span><span id="pgt3"></span><span id="pgt4"></span></div></div>
 <div class="card">
 <div class="row"><label>Тема<select id="sx"></select></label><label>Рисунок<select id="sp"></select></label></div>
 <div class="ctl">
 <div class="tst"><button id="m5" class="ic" type="button" title="Темп на 5 медленнее" aria-label="Темп на 5 медленнее">−</button><div id="bpm">60</div><button id="p5" class="ic" type="button" title="Темп на 5 быстрее" aria-label="Темп на 5 быстрее">+</button></div>
 <div id="tempos" class="chips"></div>
+</div>
 <div class="tbtns">
 <button id="bprev" class="ic" type="button" title="Предыдущий урок" aria-label="Предыдущий урок"></button>
 <button id="brst" class="ic" type="button" title="Сначала" aria-label="Начать сначала"></button>
@@ -35,15 +36,14 @@
 <button id="bnext" class="ic" type="button" title="Следующий урок" aria-label="Следующий урок"></button>
 </div>
 </div>
-</div>
 <div class="card" id="hud">
 <div class="stat"><div id="phase">Стоп</div><div id="bars"></div><div class="live"><div>Счёт<b id="hs"></b></div><div>Множитель<b id="hc"></b></div><div>Точность<b id="ha"></b></div></div></div>
 <div class="prow"><div id="pname"></div><button id="bhud" class="dot" type="button" title="Как читать окно" aria-label="Как читать окно" aria-expanded="false" aria-controls="hb">?</button></div>
 <div id="strip"></div>
 <div id="cbar" aria-hidden="true"></div>
-<canvas id="cv" style="width:100%;height:96px;display:block;margin-top:8px;border-radius:8px;background:var(--bg)"></canvas>
+<div class="cwrap"><canvas id="cv"></canvas><div id="pop" class="pop" role="status" aria-live="polite" hidden></div></div>
 <div id="hb" class="hint" role="note" hidden><b>Круги сверху</b> — что нужно сыграть, <b>ромбы снизу</b> — что вы сыграли. Зелёный: в точку, синий: рано или поздно, красный: мимо или лишняя нота. Красная линия — сейчас. Включите «Игра включена» в настройках и нажмите «Старт».</div>
-<div id="fb"></div>
+<div id="fb" role="status" aria-live="polite"></div>
 </div>
 </section>
 <section id="vscore" class="view" aria-label="Счёт" hidden>
@@ -63,6 +63,18 @@
 <dt><kbd>N</kbd></dt><dd>нота рисунка звучит и в тактах «играю», вкл и выкл на ходу</dd>
 <dt><kbd>1</kbd>–<kbd>8</kbd></dt><dd>перейти к теме</dd>
 </dl><p class="note" style="margin-top:10px">Сначала кликните по странице, чтобы заработали клавиши. Раскладка не важна.</p></div>
+<div class="card" id="ghelp"><h2>Как играть</h2><dl>
+<dt>Включите игру</dt><dd>в настройках отметьте «Игра включена» и разрешите микрофон. Лучше играть в наушниках: так микрофон слышит гитару, а не метроном.</dd>
+<dt>Выберите вход</dt><dd>если гитара подключена через аудиоинтерфейс, выберите его в списке «Вход». В Chrome выберите тот же интерфейс и в «Выходе», тогда вход и выход идут от одних часов.</dd>
+<dt>Настройте уровень</dt><dd>играйте ноты и поднимайте чувствительность, пока полоска не заходит за метку. Слишком высокий уровень ловит шум, слишком низкий пропускает тихие ноты.</dd>
+<dt>Откалибруйте задержку</dt><dd>нажмите «Калибровка» и играйте на каждый щелчок. Или замкните выход интерфейса на вход кабелем, чтобы измерить только технику.</dd>
+<dt>Старт</dt><dd>«Старт» играет метроном и голосовой счёт. После счёта идёт «Слушай»: рисунок звучит, микрофон не оценивается. Потом «Играй»: играйте вместе с метрономом, каждая нота получает оценку.</dd>
+<dt>Оценка</dt><dd>до 45 мс — «Идеально», до 90 мс — «Хорошо», дальше — «Рано» или «Поздно». Пропущенная нота — «Мимо», лишний удар тоже считается ошибкой.</dd>
+<dt>Окно нот</dt><dd>круги сверху — что нужно сыграть, ромбы снизу — ваши удары. Красная линия это текущий момент. Совпадающие ноты становятся зелёными, промахи — красными.</dd>
+<dt>Серия и множитель</dt><dd>каждые восемь попаданий подряд повышают множитель счёта, ошибка сбрасывает серию.</dd>
+<dt>Звёзды</dt><dd>60% точности — уровень пройден, 75% и 90% дают первую и вторую звезду. После итога приложение само переходит к следующему уроку или повторяет этот.</dd>
+<dt>Повторы</dt><dd>первые две попытки после неудачи идут без «Слушай», чтобы не терять темп. Дальше прослушивание возвращается; пропуск можно выключить в настройках.</dd>
+</dl></div>
 <div class="card"><h2>Как заниматься</h2><dl>
 <dt>Такт счёта</dt><dd>один такт это «раз, два, три, четыре», два такта сначала «раз — два —», потом «раз, два, три, четыре»</dd>
 <dt>Слушаю</dt><dd>рисунок звучит, микрофон не оценивается, можно подпевать ногой</dd>
@@ -75,7 +87,7 @@
 <div class="card"><h2>Занятие</h2><div class="opt">
 <label><input type="checkbox" id="oloop">Повторять рисунок</label>
 <label><input type="checkbox" id="ocnt">Такт счёта перед стартом</label>
-<label><input type="checkbox" id="oret">После трёх неудач снова слушать</label>
+<label><input type="checkbox" id="oskip">Пропускать «Слушаю» первые 2 попытки</label>
 <label>Тактов счёта<select id="ocb"><option value="1">1</option><option value="2">2</option></select></label>
 <label>Слушаю, тактов<input type="number" id="oL" min="0" max="8"></label>
 <label>Играю, тактов<input type="number" id="oP" min="1" max="16"></label>
@@ -93,6 +105,15 @@
 <div class="card"><h2>Рисунок</h2><div class="opt">
 <label><input type="checkbox" id="onote">Рисунок звучит</label>
 <label><input type="checkbox" id="onp">Рисунок и когда играю</label>
+<label>Высота рисунка<select id="opit">
+<option value="82.41">E2 · 82 Гц</option>
+<option value="110">A2 · 110 Гц</option>
+<option value="146.83">D3 · 147 Гц</option>
+<option value="164.81">E3 · 165 Гц</option>
+<option value="196">G3 · 196 Гц</option>
+<option value="246.94">B3 · 247 Гц</option>
+<option value="329.63">E4 · 330 Гц</option>
+</select></label>
 <label>Громкость рисунка<input type="range" id="onv" min="0" max="200" step="5" style="width:130px"><span id="onvv" style="min-width:44px;font-variant-numeric:tabular-nums"></span></label>
 </div></div>
 <div class="card"><h2>Игра с гитарой</h2><div class="opt">

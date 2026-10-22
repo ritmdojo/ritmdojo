@@ -48,14 +48,14 @@ const EX=[
 {t:'Синкопа',l:[60,75,90],p:[['Только «и» всех долей',g('.X.X.X.X',H)],['1, 1и, 2и, 3, 4',e([0,.5,1.5,2,3],1)],['1, 2и, 3и, 4и',e([0,1.5,2.5,3.5],1)],['1, 2, 3и, 4и',e([0,1,2.5,3.5],1)],['3-3-3-3-4 шестнадцатыми',e([0,.75,1.5,2.25,3],1)]]}
 ];
 const B=[];EX.forEach((x,xi)=>x.p.forEach((p,pi)=>x.l.forEach((v,ti)=>B.push({xi,pi,ti,bpm:v}))));
-let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,GM:false,S:60,CAL:0,CALD:false,OUT:'',MIC:'',HI:0,ret:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
+let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,PIT:164.81,GM:false,S:60,CAL:0,CALD:false,OUT:'',MIC:'',HI:0,skip:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
 try{const s=JSON.parse(localStorage.getItem('rt2')||'{}');if(s.opt)Object.assign(opt,s.opt);if(Number.isInteger(s.cur)&&B[s.cur])cur=s.cur;shift=Number(s.shift)||0}catch(_){}
 const save=()=>{try{localStorage.setItem('rt2',JSON.stringify({cur,shift,opt}))}catch(_){}};
 const bpmOf=i=>Math.max(30,Math.min(240,B[i].bpm+shift));
 const find=(xi,pi,ti)=>B.findIndex(b=>b.xi==xi&&b.pi==pi&&b.ti==ti);
 
 function click(t,f,v){const o=ctx.createOscillator(),a=ctx.createGain();o.type='triangle';o.frequency.value=f;a.gain.setValueAtTime(v,t);a.gain.exponentialRampToValueAtTime(.001,t+.035);o.connect(a);a.connect(cb);o.start(t);o.stop(t+.045)}
-function note(t,acc){const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),a=ctx.createGain();o.type='sawtooth';o.frequency.value=164.81;f.type='lowpass';f.frequency.setValueAtTime(1800,t);f.frequency.exponentialRampToValueAtTime(250,t+.15);a.gain.setValueAtTime(acc?.42:.25,t);a.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(f);f.connect(a);a.connect(nb);o.start(t);o.stop(t+.25)}
+function note(t,acc){const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),a=ctx.createGain();o.type='sawtooth';o.frequency.value=opt.PIT||164.81;f.type='lowpass';f.frequency.setValueAtTime(1800,t);f.frequency.exponentialRampToValueAtTime(250,t+.15);a.gain.setValueAtTime(acc?.42:.25,t);a.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(f);f.connect(a);a.connect(nb);o.start(t);o.stop(t+.25)}
 
 let nb,bq=[],vt=[],vox=null,cb,cp,np;const SS=window.speechSynthesis,VW=['раз','два','три','четыре'];
 function pickVoice(){if(!SS){$('vst').textContent='Голос недоступен в этом браузере';return}
@@ -82,6 +82,9 @@ const calOff=()=>{const on=!!calTimer||!!cal;if(calTimer)clearTimeout(calTimer);
 const thr=()=>.002*Math.pow(50,(100-opt.S)/100);
 const acc=s=>s?Math.max(0,(s.p+.6*s.g-.3*s.x)/Math.max(1,s.n)*100):0;
 const flash=(t,c)=>{const e=$('fb');e.className='';void e.offsetWidth;e.className=c;e.textContent=t};
+let popT=null;
+function popup(t,c){const e=$('pop');if(!e)return;e.textContent=t;e.className='pop '+c;e.hidden=false;clearTimeout(popT);popT=setTimeout(popOff,2000)}
+function popOff(){clearTimeout(popT);popT=null;const e=$('pop');if(e){e.hidden=true;e.textContent='';e.className='pop'}}
 const mult=()=>1+Math.min(3,combo>>3);
 const fmt=t=>{t=Math.max(0,Math.round(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
 const bdur=i=>(opt.L+opt.P+(opt.GM?1:0))*240/bpmOf(i);
@@ -112,11 +115,12 @@ function recUpd(){const rows=Object.entries(opt.rec||{}).map(([bi,r])=>({bi:+bi,
  $('rte').textContent=rows.length?`Лучшие ${top.length} из ${rows.length}. Рекорд обновляется по точности, звёзды не сбрасываются.`:'Рекордов пока нет: сыграйте уровень в тактах «Играй».';
  $('hst').textContent=Object.values(opt.best||{}).reduce((a,b)=>a+b,0)+' из '+B.length*3}
 function unforce(){if(forced===null)return;opt.L=forced;forced=null;const o=$('oL');if(o)o.value=opt.L;save()}
-function forceL(){if(forced===null&&opt.L<1){forced=opt.L;opt.L=1;save()}}
+function forceL(v){if(forced===null){forced=opt.L;opt.L=v;save()}}
 function endBlock(bi){if(!gs||!gs.n)return'next';
  const r=result(bi);
  if(r.st){fails=0;unforce();return'next'}
- if(++fails>=3&&opt.ret!==false)forceL();
+ fails++;
+ if(opt.skip!==false&&fails<=2)forceL(0);else unforce();
  return'again'}
 const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
 function stats(d){const n=d.length;if(!n)return null;const m=avg(d);let s2=0,s3=0,s4=0;for(const x of d){const e=x-m;s2+=e*e;s3+=e*e*e;s4+=e*e*e*e}const v=s2/n,sd=Math.sqrt(v);return{n,m,sd,sk:sd?s3/n/(sd*v):0,ku:sd?s4/n/(v*v)-3:0}}
@@ -143,7 +147,7 @@ function hudUpd(){const s=gs||{p:0,g:0,m:0,x:0},j=s.p+s.g+s.m,a=j?Math.max(0,(s.
  tmUpd()}
 function gameTick(it,now){
  compact(xq,e=>{if(!e.d&&e.t<now-.2){e.d=1;e.r='m';e.s.m++;combo=0;flash('Мимо','bad')}return e.t>now-1});
- if(gs&&gs.n&&it.k==opt.L+opt.P&&now-it.t>.25){const r=result(it.bi);if(!r.shown){r.shown=1;flash(r.st?'Успех! '+Math.round(r.a)+'%':'Неудача '+Math.round(r.a)+'%',(r.st?'ok':'bad')+' res')}}
+ if(gs&&gs.n&&it.k==opt.L+opt.P&&now-it.t>.25){const r=result(it.bi);if(!r.shown){r.shown=1;popup(r.st?'Успех! '+Math.round(r.a)+'%':'Неудача '+Math.round(r.a)+'%',r.st?'ok':'bad')}}
  if(now-hudT>.1){hudT=now;hudUpd()}
  draw(now,it.spb)}
 class Det{constructor(sr,post){this.sr=sr;this.post=post;this.n=Math.round(sr*.06);this.buf=new Float32Array(this.n);this.env=0;this.rel=Math.exp(-1/(sr*.012));this.k=Math.round(sr*.012);this.pk=0;this.pf=0;this.w=-1;this.rf=0;this.last=-1e9;this.thr=.01}
@@ -172,21 +176,21 @@ async function micOn(){micOff();const gen=micGen;try{
  if(c.setSinkId&&outs.length){$('lout').style.display='flex';$('mout').innerHTML=outs.map(x=>`<option value="${x.deviceId}">${x.label||'Выход'}</option>`).join('');if(opt.OUT){$('mout').value=opt.OUT;c.setSinkId(opt.OUT).catch(()=>{})}}
  $('mst').textContent='Вход включён. Сыграйте ноту: полоска справа должна заходить за метку.';latUpd()}
  catch(e){if(gen!==micGen)return;micOff();opt.GM=false;$('ogm').checked=false;$('mst').textContent='Вход недоступен ('+(e.name||e)+'). Разрешите микрофон в настройках браузера и откройте страницу по https или на localhost.';save()}}
-const CH=96;
-function sizeCv(rw){const c=$('cv'),dp=Math.min(2,devicePixelRatio||1);c.dataset.w=rw;c.width=Math.round(rw*dp);c.height=Math.round(CH*dp);c.getContext('2d').setTransform(dp,0,0,dp,0,0)}
-let CC=null,cvW=0,barr=[];
+let CH=96;
+function sizeCv(rw,rh){const c=$('cv'),dp=Math.min(2,devicePixelRatio||1);CH=Math.max(96,Math.round(rh));c.dataset.w=rw;c.dataset.h=CH;c.width=Math.round(rw*dp);c.height=Math.round(CH*dp);c.getContext('2d').setTransform(dp,0,0,dp,0,0)}
+let CC=null,cvW=0,cvH=0,barr=[];
 const colors=()=>{if(CC)return CC;const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();
  return CC={fg:g('--fg'),mut:g('--mut'),need:g('--need'),ok:g('--ok'),lis:g('--lis')}};
 const themeOff=()=>{CC=null};
 new MutationObserver(themeOff).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 matchMedia('(prefers-color-scheme:dark)').addEventListener('change',themeOff);
-const cvRO=new ResizeObserver(es=>{const w=Math.round(es[0].contentRect.width);if(w==cvW)return;cvW=w;if(w){sizeCv(w);if(!$('vplay').hidden)draw(ctx?ctx.currentTime:0,60/bpmOf(cur))}});
-function draw(now,spb){const c=$('cv'),g=c.getContext('2d');let W=cvW;
- if(!W){W=cvW=Math.round(c.getBoundingClientRect().width);if(!W)return}
- const H=CH;if(c.dataset.w!=W)sizeCv(W);
+const cvRO=new ResizeObserver(es=>{const r=es[0].contentRect,w=Math.round(r.width),h=Math.round(r.height);if(w==cvW&&h==cvH)return;cvW=w;cvH=h;if(w&&h){sizeCv(w,h);if(!$('vplay').hidden)draw(ctx?ctx.currentTime:0,60/bpmOf(cur))}});
+function draw(now,spb){const c=$('cv'),g=c.getContext('2d');let W=cvW,H=cvH;
+ if(!W||!H){const r=c.getBoundingClientRect();W=cvW=Math.round(r.width);H=cvH=Math.round(r.height);if(!W||!H)return}
+ if(c.dataset.w!=W||+c.dataset.h!=H)sizeCv(W,H);
  const C=colors();g.clearRect(0,0,W,H);
  now-=((ctx&&(ctx.outputLatency||ctx.baseLatency))||0)-.008;
- const span=6*spb,nx=.28*W,pps=W/span,X=t=>nx+(t-now)*pps,y1=26,y2=66;
+ const span=6*spb,nx=.28*W,pps=W/span,X=t=>nx+(t-now)*pps,y1=Math.round(H*.32),y2=Math.round(H*.72);
  compact(nv,n=>n.t>now-6);compact(pv,p=>p.t>now-6);compact(bh,b=>b.t+4*b.spb>now-6);
  const bars=barr;bars.length=0;for(const b of bh)bars.push(b);if(bars.length){const l=bars[bars.length-1];for(let t=l.t+4*l.spb;t<now+span;t+=4*l.spb)bars.push({t,spb:l.spb})}
  for(const b of bars)for(let i=0;i<8;i++){const x=X(b.t+i*b.spb/2);if(x<0||x>W)continue;g.globalAlpha=i==0?.7:i%2==0?.4:.25;g.fillStyle=i==0?C.fg:C.mut;g.fillRect(x-(i==0?1:.5),0,i==0?2:1,H)}
@@ -239,13 +243,13 @@ function kill(){killVoice();if(out){out.gain.value=0;out.disconnect()}
  cb=ctx.createGain();cp=ctx.createStereoPanner();cp.pan.value=-.45;cb.connect(cp);cp.connect(out);bq=[]}
 function start(c){
  if(calOff())$('mst').textContent='Калибровка отменена';
- fails=0;unforce();
+ fails=0;unforce();popOff();
  if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.resume();
  if(opt.GM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-opt.CB:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
  clearInterval(timer);timer=setInterval(tick,40);tick();playUI(1);
 }
 function playUI(on){$('bplay').classList.toggle('on',!!on);$('bplaytx').textContent=on?'Пауза (пробел)':'Старт (пробел)'}
-function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];fails=0;unforce();playUI(0);$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
+function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];fails=0;unforce();playUI(0);popOff();$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
  if(gsp.length)gsp.forEach(s=>s.classList.remove('now'));nowIdx=-1;lastK=-9;lastPh='';lastPct=-1;$('strip').classList.remove('mute');foot(0);$('fb').textContent='';$('fb').className=''}
 
 function drawStrip(p){
@@ -282,7 +286,7 @@ function frame(){
  const lis=it.k>=0&&it.k<opt.L,rs=it.k>=opt.L+opt.P;
  const pt=it.k<0?'Счёт':rs?'Итог':lis?'Слушай':'Играй';
  if(pt!=lastPh){lastPh=pt;const P=$('phase');P.textContent=pt;P.className=it.k<0||rs?'cnt':lis?'lis':'pl'}
- if(it.k!=lastK){lastK=it.k;$('bars').textContent=it.k<0?(opt.CB>1?`счёт ${opt.CB+it.k+1} из ${opt.CB}`:'такт счёта'):`такт ${it.k+1} из ${it.tot}`;$('strip').classList.toggle('mute',!lis&&it.k>=0)}
+ if(it.k!=lastK){if(it.k==0&&lastK==-1)popup('Погнали!','go');lastK=it.k;$('bars').textContent=it.k<0?(opt.CB>1?`счёт ${opt.CB+it.k+1} из ${opt.CB}`:'такт счёта'):`такт ${it.k+1} из ${it.tot}`;$('strip').classList.toggle('mute',!lis&&it.k>=0)}
  const idx=gsp.length?Math.floor(f*gsp.length):-1;
  if(idx!=nowIdx){if(gsp[nowIdx])gsp[nowIdx].classList.remove('now');if(gsp[idx])gsp[idx].classList.add('now');nowIdx=idx}
 }
@@ -304,13 +308,15 @@ $('bnext').insertAdjacentHTML('afterbegin',ic('<polygon points="5 4 15 12 5 20"/
 $('bprev').onclick=()=>go(cur-1);$('bnext').onclick=()=>go(cur+1);$('brst').onclick=()=>{playing?start(true):start(true)};
 $('bplay').onclick=toggle;$('m5').onclick=()=>setShift(-5);$('p5').onclick=()=>setShift(5);
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('button');if(b)b.blur()});
-$('oloop').checked=opt.loop;$('ocnt').checked=opt.count;$('oret').checked=opt.ret!==false;$('ocb').value=opt.CB;$('ocb').disabled=!opt.count;$('oL').value=opt.L;$('oP').value=opt.P;
-$('oloop').onchange=ev=>{opt.loop=ev.target.checked;save()};$('oret').onchange=ev=>{opt.ret=ev.target.checked;save()};$('ocnt').onchange=ev=>{opt.count=ev.target.checked;$('ocb').disabled=!opt.count;save()};
+$('oloop').checked=opt.loop;$('ocnt').checked=opt.count;$('oskip').checked=opt.skip!==false;$('ocb').value=opt.CB;$('ocb').disabled=!opt.count;$('oL').value=opt.L;$('oP').value=opt.P;
+$('oloop').onchange=ev=>{opt.loop=ev.target.checked;save()};$('oskip').onchange=ev=>{opt.skip=ev.target.checked;save()};$('ocnt').onchange=ev=>{opt.count=ev.target.checked;$('ocb').disabled=!opt.count;save()};
 $('ocb').onchange=ev=>{opt.CB=Math.max(1,Math.min(2,+ev.target.value||1));ev.target.value=opt.CB;save()};
 $('oL').onchange=ev=>{opt.L=Math.max(0,Math.min(8,+ev.target.value||0));ev.target.value=opt.L;save()};
 $('oP').onchange=ev=>{opt.P=Math.max(1,Math.min(16,+ev.target.value||1));ev.target.value=opt.P;save()};
 $('ovoc').checked=opt.V;$('ovol').value=opt.G;$('ovolv').textContent=opt.G+'%';$('ovol').oninput=ev=>{opt.G=+ev.target.value;$('ovolv').textContent=opt.G+'%';save()};$('ovol').onchange=ev=>ev.target.blur();
 $('onote').checked=opt.N;$('onp').checked=opt.NP;$('onv').value=opt.NG;$('onvv').textContent=opt.NG+'%';
+const pitSel=$('opit');if(![...pitSel.options].some(o=>+o.value==opt.PIT))opt.PIT=164.81;pitSel.value=opt.PIT;
+pitSel.onchange=ev=>{opt.PIT=+ev.target.value||164.81;save()};
 $('onote').onchange=ev=>{opt.N=ev.target.checked;applyBus();save()};
 $('onp').onchange=ev=>{opt.NP=ev.target.checked;applyBus();save()};
 $('onv').oninput=ev=>{opt.NG=+ev.target.value;$('onvv').textContent=opt.NG+'%';applyBus();save()};$('onv').onchange=ev=>ev.target.blur();

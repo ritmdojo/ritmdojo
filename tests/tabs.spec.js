@@ -36,6 +36,14 @@ test.describe('вкладки, шапка и логотип', () => {
         helpBeforeGear: before('bhelp', 'bset'),
         gearLast: document.querySelector('.topin').lastElementChild.id,
         shoe: getComputedStyle(document.querySelector('#lfoot g rect')).fill,
+        iconBoxes: ['bprev', 'brst', 'bplay', 'bnext'].map(id => {
+          const r = document.querySelector('#' + id + ' svg').getBoundingClientRect();
+          return [Math.round(r.width), Math.round(r.height)];
+        }),
+        gearIcon: (() => { const r = document.querySelector('#bset svg').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })(),
+        helpFont: getComputedStyle(document.getElementById('bhelp')).fontSize,
+        gearBox: (() => { const r = document.getElementById('bset').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })(),
+        helpBox: (() => { const r = document.getElementById('bhelp').getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; })(),
       };
     });
     expect(art.logoRects).toBeGreaterThan(14);
@@ -51,6 +59,10 @@ test.describe('вкладки, шапка и логотип', () => {
     expect(art.helpBeforeGear).toBe(true);
     expect(art.gearLast).toBe('bset');
     expect(art.shoe).toMatch(/^rgb/);
+    expect(art.iconBoxes).toEqual(Array(4).fill([20, 20]));
+    expect(art.gearIcon).toEqual([20, 20]);
+    expect(art.helpFont).toBe('20px');
+    expect(art.gearBox).toEqual(art.helpBox);
     await expectNoErrors(errors);
   });
 
@@ -162,6 +174,25 @@ test.describe('вкладки, шапка и логотип', () => {
     expect(layout.playFill).toBe('currentColor');
     await expect(page.locator('#bplay')).toHaveText('Старт (пробел)');
     await expect(page.locator('#bplay')).toHaveAttribute('aria-label', /Старт/);
+  });
+
+  test('подписи прогресса и кнопки транспорта стоят в одну строку', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await boot(page);
+    const rows = await page.evaluate(() => {
+      const tops = sel => [...document.querySelectorAll(sel)].map(e => Math.round(e.getBoundingClientRect().top));
+      const card = document.getElementById('pg').getBoundingClientRect();
+      const spans = [...document.querySelectorAll('#pg .pgr span')].map(e => Math.round(e.getBoundingClientRect().right));
+      return {
+        progress: tops('#pg .pgr span'),
+        transport: tops('.tbtns .ic'),
+        cardRight: Math.round(card.right),
+        spans,
+      };
+    });
+    expect(new Set(rows.progress).size).toBe(1);
+    expect(new Set(rows.transport).size).toBe(1);
+    expect(Math.max(...rows.spans)).toBeLessThanOrEqual(rows.cardRight);
   });
 
   test('подсказки игрового окна прячутся в кружок ? и не занимают высоту', async ({ page }) => {

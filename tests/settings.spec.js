@@ -85,6 +85,29 @@ test.describe('настройки и сохранения', () => {
     expect(state.saved.opt.NG).toBe(55);
   });
 
+  test('высота рисунка выбирается и сохраняется', async ({ page }) => {
+    await boot(page);
+    await openTab(page, 'settings');
+    await expect(page.locator('#opit')).toHaveValue('164.81');
+    await page.selectOption('#opit', '196');
+    expect((await readState(page)).opt.PIT).toBe(196);
+    expect((await readState(page)).saved.opt.PIT).toBe(196);
+    const fq = await page.evaluate(() => {
+      if (!ctx) ac();
+      kill();
+      const out = [], st = OscillatorNode.prototype.start;
+      OscillatorNode.prototype.start = function (...a) { out.push(this.frequency.value); return st.apply(this, a); };
+      note(ctx.currentTime + .01, false);
+      OscillatorNode.prototype.start = st;
+      return out;
+    });
+    expect(fq).toContain(196);
+    await page.reload();
+    await page.waitForFunction(() => typeof B !== 'undefined');
+    await openTab(page, 'settings');
+    await expect(page.locator('#opit')).toHaveValue('196');
+  });
+
   test('чувствительность меняет порог детектора', async ({ page }) => {
     await boot(page);
     await openTab(page, 'settings');
@@ -183,7 +206,7 @@ test.describe('настройки и сохранения', () => {
     expect(state.opt.zzz).toBe('ignored');
     await expect(page.locator('#oL')).toHaveValue('1');
     await expect(page.locator('#oP')).toHaveValue('4');
-    await expect(page.locator('#oret')).toBeChecked();
+    await expect(page.locator('#oskip')).toBeChecked();
   });
 
   test('битый JSON и нечисловой shift не ломают загрузку', async ({ page }) => {

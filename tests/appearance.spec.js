@@ -60,18 +60,29 @@ test.describe('оформление и адаптивность', () => {
     await expect(page.locator('#strip')).toBeVisible();
   });
 
-  test('игровой экран помещается по высоте без прокрутки', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 });
+  test('игровой экран заполняет iPhone 13 mini без прокрутки', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
     await boot(page);
-    const m = await page.evaluate(() => ({
-      scroll: document.documentElement.scrollHeight,
-      inner: window.innerHeight,
-      fb: Math.round(document.getElementById('fb').getBoundingClientRect().bottom),
-      canvas: Math.round(document.getElementById('cv').getBoundingClientRect().height),
-    }));
+    const m = await page.evaluate(() => {
+      const box = id => document.getElementById(id).getBoundingClientRect();
+      return {
+        scroll: document.documentElement.scrollHeight,
+        inner: window.innerHeight,
+        fb: Math.round(box('fb').bottom),
+        canvas: Math.round(box('cv').height),
+        cvBottom: Math.round(box('cv').bottom),
+        vplay: Math.round(box('vplay').height),
+        main: Math.round(document.querySelector('main').getBoundingClientRect().height),
+        fbAlign: getComputedStyle(document.getElementById('fb')).textAlign,
+      };
+    });
     expect(m.scroll).toBeLessThanOrEqual(m.inner + 1);
     expect(m.fb).toBeLessThanOrEqual(m.inner);
-    expect(m.canvas).toBe(96);
+    expect(m.cvBottom).toBeLessThanOrEqual(m.inner);
+    expect(m.canvas).toBeGreaterThan(96);
+    expect(m.fbAlign).toBe('center');
+    expect(m.vplay).toBeGreaterThan(m.canvas);
+    expect(m.main).toBeGreaterThan(m.vplay);
   });
 
   test('фокус виден на элементах управления', async ({ page }) => {

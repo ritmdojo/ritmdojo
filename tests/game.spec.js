@@ -445,17 +445,19 @@ test.describe('режим игры: оценка и статистика', () =>
       gs = r;
       xq = [];
       gameTick({ k: 1, t: 0, spb: .5, bi: 2 }, 1);
-      const fb = document.getElementById('fb');
-      return { missed, result: fb.textContent, cls: fb.className, pop: document.getElementById('pop'), shown: R && R.shown };
+      const fb = document.getElementById('fb'), pop = document.getElementById('pop');
+      return { missed, result: fb.textContent, cls: fb.className, pop: pop.textContent, popCls: pop.className, popHidden: pop.hidden, shown: R && R.shown };
     });
     expect(data.missed).toEqual({ xq: ['m'], m: 1, combo: 0, flash: 'Мимо' });
-    expect(data.result).toBe('Неудача 0%');
-    expect(data.cls).toBe('bad res');
-    expect(data.pop).toBeNull();
+    expect(data.result).toBe('Мимо');
+    expect(data.cls).toBe('bad');
+    expect(data.pop).toBe('Неудача 0%');
+    expect(data.popCls).toContain('bad');
+    expect(data.popHidden).toBe(false);
     expect(data.shown).toBe(1);
   });
 
-  test('итог уровня живёт в окне перформанса и гаснет по остановке', async ({ page }) => {
+  test('итог уровня всплывает над канвасом и гаснет сам', async ({ page }) => {
     await boot(page);
     await page.evaluate(() => {
       opt.GM = true;
@@ -466,12 +468,15 @@ test.describe('режим игры: оценка и статистика', () =>
       gs = g;
       gameTick({ k: 1, t: 0, spb: .5, bi: 0 }, 1);
     });
-    await expect(page.locator('#fb')).toHaveText('Успех! 100%');
-    await expect(page.locator('#fb')).toHaveClass(/ok/);
-    await expect(page.locator('#fb')).toHaveClass(/res/);
+    await expect(page.locator('#pop')).toHaveText('Успех! 100%');
+    await expect(page.locator('#pop')).toHaveClass(/ok/);
+    await expect(page.locator('#pop')).toBeVisible();
+    await expect(page.locator('#pop')).toBeHidden({ timeout: 3000 });
+    await page.evaluate(() => { R = null; gameTick({ k: 1, t: 0, spb: .5, bi: 0 }, 1); });
+    await expect(page.locator('#pop')).toBeVisible();
     await page.evaluate(() => stop());
+    await expect(page.locator('#pop')).toBeHidden();
     await expect(page.locator('#fb')).toHaveText('');
-    await expect(page.locator('#fb')).not.toHaveClass(/res/);
   });
 
   test('HUD считает точность без лишних нот в знаменателе', async ({ page }) => {
@@ -526,7 +531,7 @@ test.describe('режим игры: воспроизведение и калиб
     await enableGame(page);
     await openTab(page, 'play');
     await page.locator('#bplay').click();
-    await expect(page.locator('#fb')).toHaveText('Неудача 0%', { timeout: 6000 });
+    await expect(page.locator('#pop')).toHaveText('Неудача 0%', { timeout: 6000 });
     await expect(page.locator('#phase')).toHaveText('Итог');
     const atResult = await page.evaluate(() => ({ sc, cur, result: R && { n: R.gs.n, st: R.st, a: R.a } }));
     expect(atResult).toEqual({ sc: 2, cur: 2, result: { n: 4, st: 0, a: 0 } });
@@ -535,8 +540,18 @@ test.describe('режим игры: воспроизведение и калиб
     await page.locator('#bplay').click();
   });
 
-  test('после трёх неудач следующий тейк начинается со слушания', async ({ page }) => {
-    await boot(page, gameState({ ret: true }));
+  test('после такта счёта появляется «Погнали!»', async ({ page }) => {
+    await boot(page, gameState({ count: true, CB: 1 }));
+    await openTab(page, 'play');
+    await page.locator('#bplay').click();
+    await expect(page.locator('#pop')).toHaveText('Погнали!', { timeout: 5000 });
+    await expect(page.locator('#pop')).toHaveClass(/go/);
+    await page.locator('#bplay').click();
+    await expect(page.locator('#pop')).toBeHidden();
+  });
+
+  test('первые две неудачи повторяются без слушания, дальше слушание возвращается', async ({ page }) => {
+    await boot(page, gameState({ skip: true, L: 2 }));
     const out = await page.evaluate(() => {
       const step = ok => {
         gs = { n: 1, p: ok ? 1 : 0, g: 0, x: 0, m: ok ? 0 : 1, d: [] };
@@ -548,14 +563,14 @@ test.describe('режим игры: воспроизведение и калиб
     });
     expect(out.one).toMatchObject({ res: 'again', L: 0, fails: 1 });
     expect(out.two).toMatchObject({ res: 'again', L: 0, fails: 2 });
-    expect(out.three).toMatchObject({ res: 'again', L: 1, fails: 3, saved: 1 });
-    expect(out.pass).toMatchObject({ res: 'next', L: 0, fails: 0, saved: 0 });
+    expect(out.three).toMatchObject({ res: 'again', L: 2, fails: 3, saved: 2 });
+    expect(out.pass).toMatchObject({ res: 'next', L: 2, fails: 0, saved: 2 });
   });
 
-  test('повторное слушание можно выключить в настройках', async ({ page }) => {
-    await boot(page, gameState({ ret: false, L: 0 }));
+  test('пропуск слушания можно выключить в настройках', async ({ page }) => {
+    await boot(page, gameState({ skip: false, L: 2 }));
     await openTab(page, 'settings');
-    await expect(page.locator('#oret')).not.toBeChecked();
+    await expect(page.locator('#oskip')).not.toBeChecked();
     const out = await page.evaluate(() => {
       const out = [];
       for (let i = 0; i < 4; i++) {
@@ -566,7 +581,7 @@ test.describe('режим игры: воспроизведение и калиб
       return { out, L: opt.L };
     });
     expect(out.out).toEqual(['again', 'again', 'again', 'again']);
-    expect(out.L).toBe(0);
+    expect(out.L).toBe(2);
   });
 
   test('калибровка по щелчкам сохраняет задержку', async ({ page }) => {
