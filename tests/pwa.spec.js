@@ -43,7 +43,7 @@ test.describe('PWA, манифест и офлайн', () => {
 
   test('service worker перечисляет существующий shell и версию', async ({ request }) => {
     expect(VERSION).toMatch(/^ritmdojo-v\d+$/);
-    expect(SHELL).toEqual(expect.arrayContaining(['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
+    expect(SHELL).toEqual(expect.arrayContaining(['./', 'index.html', 'style.css', 'app.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png',
       'voice/raz.mp3', 'voice/dva.mp3', 'voice/tri.mp3', 'voice/chetyre.mp3', 'voice/i.mp3']));
     for (const item of SHELL) {
       const url = item === './' ? '/' : '/' + item;
@@ -70,7 +70,7 @@ test.describe('PWA, манифест и офлайн', () => {
     }));
     expect(state.controller).toBe(true);
     expect(state.keys).toContain(VERSION);
-    expect(state.shell).toEqual(expect.arrayContaining(['/', '/index.html', '/manifest.json', '/icon-192.png']));
+    expect(state.shell).toEqual(expect.arrayContaining(['/', '/index.html', '/style.css', '/app.js', '/manifest.json', '/icon-192.png']));
   });
 
   test('офлайн-перезагрузка открывает приложение из кеша', async ({ page, context }) => {
