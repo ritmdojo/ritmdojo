@@ -468,7 +468,7 @@ test.describe('режим игры: оценка и статистика', () =>
       gs = g;
       gameTick({ k: 1, t: 0, spb: .5, bi: 0 }, 1);
     });
-    await expect(page.locator('#pop')).toHaveText('Успех! 100%');
+    await expect(page.locator('#pop')).toHaveText('Отлично 100%');
     await expect(page.locator('#pop')).toHaveClass(/ok/);
     await expect(page.locator('#pop')).toBeVisible();
     await expect(page.locator('#pop')).toBeHidden({ timeout: 3000 });
@@ -477,6 +477,25 @@ test.describe('режим игры: оценка и статистика', () =>
     await page.evaluate(() => stop());
     await expect(page.locator('#pop')).toBeHidden();
     await expect(page.locator('#fb')).toHaveText('');
+  });
+
+  test('попап итога называет оценку по звёздам', async ({ page }) => {
+    await boot(page);
+    const words = await page.evaluate(() => {
+      const out = [];
+      for (const [p, n] of [[6, 10], [15, 20], [18, 20]]) {
+        opt.GM = true;
+        opt.L = 0;
+        opt.P = 1;
+        playing = true;
+        R = null;
+        gs = { n, p, g: 0, x: 0, m: 0, d: [] };
+        gameTick({ k: 1, t: 0, spb: .5, bi: 0 }, 1);
+        out.push(document.getElementById('pop').textContent);
+      }
+      return out;
+    });
+    expect(words).toEqual(['Удовлетворительно 60%', 'Хорошо 75%', 'Отлично 90%']);
   });
 
   test('HUD считает точность без лишних нот в знаменателе', async ({ page }) => {

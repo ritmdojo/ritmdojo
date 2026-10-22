@@ -147,7 +147,7 @@ function hudUpd(){const s=gs||{p:0,g:0,m:0,x:0},j=s.p+s.g+s.m,a=j?Math.max(0,(s.
  tmUpd()}
 function gameTick(it,now){
  compact(xq,e=>{if(!e.d&&e.t<now-.2){e.d=1;e.r='m';e.s.m++;combo=0;flash('Мимо','bad')}return e.t>now-1});
- if(gs&&gs.n&&it.k==opt.L+opt.P&&now-it.t>.25){const r=result(it.bi);if(!r.shown){r.shown=1;popup(r.st?'Успех! '+Math.round(r.a)+'%':'Неудача '+Math.round(r.a)+'%',r.st?'ok':'bad')}}
+ if(gs&&gs.n&&it.k==opt.L+opt.P&&now-it.t>.25){const r=result(it.bi);if(!r.shown){r.shown=1;const w=['','Удовлетворительно','Хорошо','Отлично'][r.st]||'Неудача';popup(w+' '+Math.round(r.a)+'%',(r.st?'ok':'bad')+(w.length>10?' long':''))}}
  if(now-hudT>.1){hudT=now;hudUpd()}
  draw(now,it.spb)}
 class Det{constructor(sr,post){this.sr=sr;this.post=post;this.n=Math.round(sr*.06);this.buf=new Float32Array(this.n);this.env=0;this.rel=Math.exp(-1/(sr*.012));this.k=Math.round(sr*.012);this.pk=0;this.pf=0;this.w=-1;this.rf=0;this.last=-1e9;this.thr=.01}

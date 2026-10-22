@@ -93,7 +93,7 @@ test.describe('вкладки, шапка и логотип', () => {
     await expect(page.locator('#bhelp')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('#vhelp')).toContainText('Горячие клавиши');
     await expect(page.locator('#vhelp')).toContainText('Пробел');
-    await expect(page.locator('#vhelp')).toContainText('два такта сначала «раз — два —»');
+    await expect(page.locator('#vhelp')).toContainText('Два такта: сначала «раз — два —»');
     await page.locator('#bhelp').click();
     await expect(page.locator('#vplay')).toBeVisible();
     await expect(page.locator('#vhelp')).toBeHidden();
@@ -157,6 +157,8 @@ test.describe('вкладки, шапка и логотип', () => {
         icons: document.querySelectorAll('#bprev svg, #brst svg, #bnext svg').length,
         playIcons: document.querySelectorAll('#bplay svg').length,
         chips: document.querySelectorAll('#tempos .chip').length,
+        order: [...document.querySelectorAll('.tbtns .ic')].map(e => e.id),
+        widths: ids.map(id => Math.round(document.getElementById(id).getBoundingClientRect().width)),
         heights: ids.map(id => Math.round(document.getElementById(id).getBoundingClientRect().height)),
         prevStroke: document.querySelector('#bprev svg').getAttribute('stroke'),
         playFill: document.querySelector('#bplay svg').getAttribute('fill'),
@@ -168,30 +170,42 @@ test.describe('вкладки, шапка и логотип', () => {
     expect(layout.icons).toBe(3);
     expect(layout.playIcons).toBe(2);
     expect(layout.chips).toBe(3);
+    expect(layout.order).toEqual(['brst', 'bprev', 'bplay', 'bnext']);
+    expect(new Set(layout.widths).size).toBe(1);
     expect(new Set(layout.heights).size).toBe(1);
     expect(layout.heights[0]).toBeGreaterThanOrEqual(36);
+    expect(layout.widths[0]).toBe(layout.heights[0]);
     expect(layout.prevStroke).toBe('currentColor');
     expect(layout.playFill).toBe('currentColor');
     await expect(page.locator('#bplay')).toHaveText('Старт (пробел)');
     await expect(page.locator('#bplay')).toHaveAttribute('aria-label', /Старт/);
   });
 
-  test('подписи прогресса и кнопки транспорта стоят в одну строку', async ({ page }) => {
+  test('выбор темпа и кнопки транспорта стоят в одну строку', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await boot(page);
     const rows = await page.evaluate(() => {
       const tops = sel => [...document.querySelectorAll(sel)].map(e => Math.round(e.getBoundingClientRect().top));
+      const mid = sel => {
+        const r = document.querySelector(sel).getBoundingClientRect();
+        return Math.round(r.top + r.height / 2);
+      };
       const card = document.getElementById('pg').getBoundingClientRect();
       const spans = [...document.querySelectorAll('#pg .pgr span')].map(e => Math.round(e.getBoundingClientRect().right));
+      const ctl = document.querySelector('.ctl');
       return {
         progress: tops('#pg .pgr span'),
         transport: tops('.tbtns .ic'),
+        tempoRow: ['#m5', '#tempos', '#p5', '.tbtns'].map(mid),
+        overflow: ctl.scrollWidth - ctl.clientWidth,
         cardRight: Math.round(card.right),
         spans,
       };
     });
     expect(new Set(rows.progress).size).toBe(1);
     expect(new Set(rows.transport).size).toBe(1);
+    expect(new Set(rows.tempoRow).size).toBe(1);
+    expect(rows.overflow).toBeLessThanOrEqual(1);
     expect(Math.max(...rows.spans)).toBeLessThanOrEqual(rows.cardRight);
   });
 
@@ -210,16 +224,30 @@ test.describe('вкладки, шапка и логотип', () => {
         pos: getComputedStyle(el).position,
         card: document.getElementById('hud').getBoundingClientRect().height,
         onCard: Math.abs(el.getBoundingClientRect().top - document.getElementById('hud').getBoundingClientRect().top) < 200,
+        dotRight: Math.round(document.getElementById('bhud').getBoundingClientRect().right),
+        prowRight: Math.round(document.querySelector('.prow').getBoundingClientRect().right),
       };
     });
     expect(shown.pos).toBe('absolute');
     expect(shown.onCard).toBe(true);
+    expect(shown.dotRight).toBe(shown.prowRight);
     expect(Math.abs(shown.card - before)).toBeLessThan(1);
     await page.keyboard.press('Escape');
     await expect(page.locator('#hb')).toBeHidden();
     await page.locator('#bhud').click();
     await page.locator('#pname').click();
     await expect(page.locator('#hb')).toBeHidden();
+  });
+
+  test('справка идёт от игры к клавишам и пишет с заглавной', async ({ page }) => {
+    await boot(page);
+    await openTab(page, 'help');
+    const help = await page.evaluate(() => ({
+      heads: [...document.querySelectorAll('#vhelp .card h2')].map(e => e.textContent),
+      dds: [...document.querySelectorAll('#vhelp dd')].map(e => e.textContent.trim()),
+    }));
+    expect(help.heads).toEqual(['Как играть', 'Как заниматься', 'Горячие клавиши']);
+    expect(help.dds.filter(t => /(?:^|\.\s+)[а-яё]/.test(t))).toEqual([]);
   });
 
   test('переключение вкладок не сбрасывает урок и настройки', async ({ page }) => {
