@@ -88,7 +88,7 @@ test.describe('режим игры: вход и настройки', () => {
       navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('нет входа', 'NotFoundError'));
     });
     const errors = watchErrors(page);
-    await boot(page);
+    await boot(page, { opt: { GM: false } });
     await openTab(page, 'settings');
     await page.locator('#ogm').click();
     await expect(page.locator('#mst')).toContainText('Вход недоступен (NotFoundError)');
@@ -115,7 +115,7 @@ test.describe('режим игры: вход и настройки', () => {
         return original(...args);
       };
     });
-    await boot(page);
+    await boot(page, { opt: { GM: false } });
     await openTab(page, 'settings');
     await page.locator('#ogm').check();
     await page.locator('#ogm').uncheck();
@@ -609,13 +609,14 @@ test.describe('режим игры: воспроизведение и калиб
     await installOscillatorSpy(page);
     await page.clock.install();
     await page.locator('#bcal').click();
-    await expect(page.locator('#mst')).toHaveText(/Играйте любую ноту/);
+    await expect(page.locator('#mst')).toHaveText(/играйте любую ноту/);
     const started = await page.evaluate(() => window.__oscStarts);
     expect(started).toBeGreaterThanOrEqual(12);
     await page.evaluate(() => {
-      cal.on = Array.from({ length: 12 }, (_, i) => ctx.currentTime + 1.2 + i * .75);
+      const dO = Math.max(0, -Math.min(0, ...['раз', 'два', 'три', 'четыре', 'и'].map(w => opt.O[w] || 0))) / 1000;
+      cal.on = Array.from({ length: 12 }, (_, i) => ctx.currentTime + dO + 4.2 + i * .75);
     });
-    await page.clock.fastForward(12000);
+    await page.clock.fastForward(20000);
     await expect(page.locator('#mst')).toHaveText(/Калибровка: -?\d+ мс, разброс \d+ мс/);
     const state = await page.evaluate(() => ({ cal, cald: opt.CALD, calv: opt.CAL, saved: JSON.parse(localStorage.getItem('rt2')).opt }));
     expect(state.cal).toBeNull();
@@ -631,7 +632,7 @@ test.describe('режим игры: воспроизведение и калиб
     await enableGame(page);
     await page.clock.install();
     await page.locator('#bcal').click();
-    await page.clock.fastForward(12000);
+    await page.clock.fastForward(20000);
     await expect(page.locator('#mst')).toHaveText('Поймано мало нот (0 из 12), повторите');
     expect(await page.evaluate(() => ({ cald: opt.CALD, cal: cal }))).toEqual({ cald: false, cal: null });
   });
@@ -643,7 +644,7 @@ test.describe('режим игры: воспроизведение и калиб
     await page.clock.install();
     await page.locator('#bcal').click();
     await page.locator('#bcal').click();
-    await page.clock.fastForward(12000);
+    await page.clock.fastForward(20000);
     await expect(page.locator('#mst')).toHaveText('Поймано мало нот (0 из 12), повторите');
     expect(await page.evaluate(() => cal)).toBeNull();
     await expectNoErrors(errors);
@@ -656,7 +657,7 @@ test.describe('режим игры: воспроизведение и калиб
     await page.locator('#bcal').click();
     await page.locator('#ogm').uncheck();
     await expect(page.locator('#mst')).toHaveText('Калибровка отменена');
-    await page.clock.fastForward(12000);
+    await page.clock.fastForward(20000);
     expect(await page.evaluate(() => ({ cal: cal, cald: opt.CALD }))).toEqual({ cal: null, cald: false });
   });
 
@@ -752,5 +753,102 @@ test.describe('режим игры: воспроизведение и калиб
     });
     expect(painted).toBeGreaterThan(0);
     await page.locator('#bplay').click();
+  });
+});
+
+test.describe('тап по канвасу, демо и автокалибровка', () => {
+  test('игра включена по умолчанию', async ({ page }) => {
+    await boot(page);
+    expect(await page.evaluate(() => opt.GM)).toBe(true);
+    await expect(page.locator('#ogm')).toBeChecked();
+  });
+
+  test('тап по канвасу ловится как удар', async ({ page }) => {
+    await boot(page, gameState({ CALD: true, CAL: 0, S: 100 }));
+    await page.evaluate(() => {
+      opt.L = 0; opt.P = 1; playing = true;
+      gs = { n: 1, p: 0, g: 0, x: 0, m: 0, d: [] };
+      xq.push({ t: ctx.currentTime + .05, s: gs, u: false });
+    });
+    await page.locator('#cv').dispatchEvent('pointerdown');
+    const r = await page.evaluate(() => ({ p: gs.p, txt: document.getElementById('fb').textContent, c: combo }));
+    expect(r.p).toBe(1);
+    expect(r.c).toBe(1);
+    expect(r.txt).toBe('Идеально');
+  });
+
+  test('тап вне игры ничего не ловит', async ({ page }) => {
+    await boot(page, gameState({ CALD: true, CAL: 0 }));
+    await page.evaluate(() => {
+      playing = false;
+      gs = { n: 1, p: 0, g: 0, x: 0, m: 0, d: [] };
+      xq.push({ t: ctx.currentTime + .05, s: gs, u: false });
+    });
+    await page.locator('#cv').dispatchEvent('pointerdown');
+    expect(await page.evaluate(() => gs.p)).toBe(0);
+  });
+
+  test('кнопка демо включает режим без микрофона', async ({ page }) => {
+    await boot(page, gameState());
+    await openTab(page, 'play');
+    await page.locator('#bdem').click();
+    await expect(page.locator('#bdem')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('#mst')).toContainText('Демо');
+    expect(await page.evaluate(() => ({ dem: opt.DEM, mic: mic }))).toEqual({ dem: true, mic: null });
+  });
+
+  test('демо делает идеальные удары и не пишет рекорды', async ({ page }) => {
+    await boot(page, gameState({ CALD: true, CAL: 0 }));
+    const r = await page.evaluate(() => {
+      opt.DEM = true; playing = true; opt.L = 0; opt.P = 1;
+      gs = { n: 2, p: 0, g: 0, x: 0, m: 0, d: [] };
+      xq.push({ t: ctx.currentTime + .1, s: gs, u: false });
+      xq.push({ t: ctx.currentTime + .2, s: gs, u: false });
+      gameTick({ k: 1, t: 0, spb: .5, bi: 2 }, ctx.currentTime + .3);
+      return { p: gs.p, txt: document.getElementById('fb').textContent, best: opt.best[2], hi: opt.HI, pop: document.getElementById('pop').textContent };
+    });
+    expect(r.p).toBe(2);
+    expect(r.txt).toBe('Идеально');
+    expect(r.best).toBeUndefined();
+    expect(r.hi).toBe(0);
+    expect(r.pop).toContain('Отлично 100%');
+  });
+
+  test('калибровка привязана к входу: смена входа сбрасывает её', async ({ page }) => {
+    await boot(page, gameState());
+    await enableGame(page);
+    const r = await page.evaluate(async () => {
+      const min = document.getElementById('min');
+      min.innerHTML = '<option value="devB">Второй</option><option value="devA">Первый</option>';
+      min.value = 'devA';
+      const res = [];
+      opt.CALP = {}; opt.CAL = 17; opt.CALD = true; opt.CALDEV = 'devA';
+      await micOn();
+      min.value = 'devB';
+      await micOn();
+      res.push({ cald: opt.CALD, cal: opt.CAL });
+      min.innerHTML = '<option value="devB">Второй</option><option value="devA">Первый</option>';
+      min.value = 'devB';
+      await calib();
+      res.push({ dev: cal && cal.dev });
+      return res;
+    });
+    expect(r[0]).toEqual({ cald: false, cal: 17 });
+    expect(r[1]).toEqual({ dev: 'devB' });
+  });
+
+  test('выход не наушники: микрофон не включается', async ({ page }) => {
+    await page.addInitScript(() => {
+      navigator.mediaDevices.enumerateDevices = async () => [
+        { kind: 'audiooutput', deviceId: 'default', label: 'динамики' },
+        { kind: 'audiooutput', deviceId: 'spk', label: 'динамики' },
+        { kind: 'audioinput', deviceId: 'd1', label: '' },
+      ];
+    });
+    await boot(page, gameState());
+    await openTab(page, 'settings');
+    await page.evaluate(() => micOn());
+    await expect(page.locator('#mst')).toContainText('не похож на наушники');
+    expect(await page.evaluate(() => ({ g: opt.GM, mic: mic }))).toEqual({ g: false, mic: null });
   });
 });

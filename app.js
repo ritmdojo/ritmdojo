@@ -48,7 +48,7 @@ const EX=[
 {t:'Синкопа',l:[60,75,90],p:[['Только «и» всех долей',g('.X.X.X.X',H)],['1, 1и, 2и, 3, 4',e([0,.5,1.5,2,3],1)],['1, 2и, 3и, 4и',e([0,1.5,2.5,3.5],1)],['1, 2, 3и, 4и',e([0,1,2.5,3.5],1)],['3-3-3-3-4 шестнадцатыми',e([0,.75,1.5,2.25,3],1)]]}
 ];
 const B=[];EX.forEach((x,xi)=>x.p.forEach((p,pi)=>x.l.forEach((v,ti)=>B.push({xi,pi,ti,bpm:v}))));
-let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,PIT:164.81,GM:false,S:60,CAL:0,CALD:false,OUT:'',MIC:'',HI:0,skip:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
+let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,PIT:164.81,GM:true,S:60,CAL:0,CALD:false,CALDEV:'',CALP:{},OUT:'',MIC:'',HI:0,DE:false,skip:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
 try{const s=JSON.parse(localStorage.getItem('rt2')||'{}');if(s.opt)Object.assign(opt,s.opt);if(Number.isInteger(s.cur)&&B[s.cur])cur=s.cur;shift=Number(s.shift)||0}catch(_){}
 const save=()=>{try{localStorage.setItem('rt2',JSON.stringify({cur,shift,opt}))}catch(_){}};
 const bpmOf=i=>Math.max(30,Math.min(240,B[i].bpm+shift));
@@ -107,6 +107,7 @@ function onset(t){
  if(dms>90){b.r=ot<b.t?'e':'l';pv.push({t:ot,r:b.r,e:b,d:dv});b.s.m++;combo=0;flash(ot<b.t?'Рано':'Поздно','bad');return}
  const pf=dms<=45;b.r=pf?'p':'g';pv.push({t:ot,r:b.r,e:b,d:dv});if(pf)b.s.p++;else b.s.g++;combo++;score+=(pf?100:50)*mult();flash(pf?'Идеально':'Хорошо','ok')}
 function result(bi){if(R&&R.gs===gs)return R;const a=acc(gs),st=a>=90?3:a>=75?2:a>=60?1:0;R={gs,a,st};
+ if(opt.DEM)return R;
  if(st){score+=Math.round(a*st*5);if(st>(opt.best[bi]||0))opt.best[bi]=st}
  if(gs&&gs.n){const r=opt.rec[bi];if(!r||a>r.a)opt.rec[bi]={a:Math.round(a),st:Math.max(st,r?r.st:0),bpm:bpmOf(bi)}}
  opt.HI=Math.max(opt.HI||0,score);save();recUpd();return R}
@@ -146,6 +147,7 @@ function hudUpd(){const s=gs||{p:0,g:0,m:0,x:0},j=s.p+s.g+s.m,a=j?Math.max(0,(s.
  if(score!=hudSc){hudSc=score;$('hh').textContent=Math.max(opt.HI||0,score)}
  tmUpd()}
 function gameTick(it,now){
+ if(opt.DEM)for(const e of xq)if(!e.d&&now>=e.t)onset(e.t+lat()/1000);
  compact(xq,e=>{if(!e.d&&e.t<now-.2){e.d=1;e.r='m';e.s.m++;combo=0;flash('Мимо','bad')}return e.t>now-1});
  if(gs&&gs.n&&it.k==opt.L+opt.P&&now-it.t>.25){const r=result(it.bi);if(!r.shown){r.shown=1;const w=['','Удовлетворительно','Хорошо','Отлично'][r.st]||'Неудача';popup(w+' '+Math.round(r.a)+'%',(r.st?'ok':'bad')+(w.length>10?' long':''))}}
  if(now-hudT>.1){hudT=now;hudUpd()}
@@ -161,6 +163,7 @@ function lat(){if(opt.CALD)return opt.CAL;return Math.round(((ctx&&(ctx.outputLa
 // время, которое слушатель слышит прямо сейчас: минус задержка вывода, плюс половина кадра, чтобы кед не отставал
 const visT=t=>t-(((ctx&&(ctx.outputLatency||ctx.baseLatency))||0)-.008);
 function latUpd(){$('lst').textContent='Задержка выход+вход: '+lat()+' мс ('+(opt.CALD?'по калибровке':'оценка браузера, лучше откалибровать')+'). Детектор: '+(mode=='worklet'?'AudioWorklet, ожидаемая точность 1–2 мс':mode=='script'?'ScriptProcessor, точность около 6 мс':'выключен')}
+const hp=(l)=>{l=(l||'').toLowerCase();if(/науш|headset|headphone|earbuds|buds|airpod/.test(l))return true;if(/динамик|speaker|монитор|monitor|встроен|display/.test(l))return false;return null};
 async function micOn(){micOff();const gen=micGen;try{
  const st=await navigator.mediaDevices.getUserMedia({audio:{deviceId:opt.MIC?{exact:opt.MIC}:undefined,echoCancellation:false,noiseSuppression:false,autoGainControl:false,channelCount:1,latency:0}});
  if(gen!==micGen){st.getTracks().forEach(t=>t.stop());return}
@@ -173,7 +176,15 @@ async function micOn(){micOff();const gen=micGen;try{
  mic.connect(proc);proc.connect(z);z.connect(c.destination);sendThr();
  const dv=await navigator.mediaDevices.enumerateDevices();if(gen!==micGen){micOff();return}const outs=dv.filter(x=>x.kind=='audiooutput');
  $('min').innerHTML=dv.filter(x=>x.kind=='audioinput').map(x=>`<option value="${x.deviceId}">${x.label||'Вход'}</option>`).join('');if(opt.MIC)$('min').value=opt.MIC;
+ const cid=$('min').value||opt.MIC||'',cp=opt.CALP||{};
+ if(cid&&!opt.DEM){
+  if(cp[cid]!=null){opt.CAL=cp[cid];opt.CALD=true;save()}
+  else if(opt.CALD&&opt.CALDEV&&opt.CALDEV!==cid){opt.CALD=false;save()}
+ }
  if(c.setSinkId&&outs.length){$('lout').style.display='flex';$('mout').innerHTML=outs.map(x=>`<option value="${x.deviceId}">${x.label||'Выход'}</option>`).join('');if(opt.OUT){$('mout').value=opt.OUT;c.setSinkId(opt.OUT).catch(()=>{})}}
+ const dl=outs.find(x=>x.deviceId=='default')||outs.find(x=>x.deviceId==opt.OUT)||outs[0],ho=hp(dl&&dl.label);
+ if(ho===false){micOff();opt.GM=false;$('ogm').checked=false;save();
+  $('mst').textContent='Выход не похож на наушники ('+(dl&&dl.label||'динамик')+'): игра выключена, иначе микрофон ловит обратную связь. Включите наушники и снова включите игру.';latUpd();return}
  $('mst').textContent='Вход включён. Сыграйте ноту: полоска справа должна заходить за метку.';latUpd()}
  catch(e){if(gen!==micGen)return;micOff();opt.GM=false;$('ogm').checked=false;$('mst').textContent='Вход недоступен ('+(e.name||e)+'). Разрешите микрофон в настройках браузера и откройте страницу по https или на localhost.';save()}}
 let CH=96;
@@ -207,12 +218,15 @@ function draw(now,spb){const c=$('cv'),g=c.getContext('2d');let W=cvW,H=cvH;
  g.fillStyle=C.need;g.fillRect(nx-1,0,2,H)}
 function micOff(){micGen++;const on=calOff();if(on)$('mst').textContent='Калибровка отменена';try{if(mic)mic.st.getTracks().forEach(t=>t.stop());if(proc)proc.disconnect()}catch(_){}mic=proc=null;det=null;mode='';latUpd();return on}
 function calib(){if(!mic){$('mst').textContent='Сначала включите игру';return}
- calOff();stop();kill();const t0=ctx.currentTime+1.2,cl=[];for(let i=0;i<12;i++){const t=t0+i*.75;cl.push(t);click(t,i%4?2000:2400,.8)}
- const c=cal={on:[]};$('mst').textContent='Играйте любую ноту ровно на каждый щелчок (12 щелчков) или замкните выход интерфейса на вход кабелем';
+ calOff();stop();kill();
+ const dO=Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000,t0=ctx.currentTime+.1+dO,t1=t0+4+ .1,cl=[];
+ for(let i=0;i<4;i++){const w=VW[i];click(t0+i,i%4?2000:2400,.6);click(t0+i+.5,1500,.16);say(t0+i+(opt.O[w]||0)/1000,w)}
+ for(let i=0;i<12;i++){const t=t1+i*.75;cl.push(t);click(t,i%4?2000:2400,.8)}
+ const c=cal={on:[],dev:($('min')&&$('min').value||opt.MIC||'')};$('mst').textContent='Сначала счёт, потом играйте любую ноту ровно на каждый из 12 щелчков (или замкните выход интерфейса на вход кабелем)';
  calTimer=setTimeout(()=>{calTimer=null;const dl=[];for(const o of c.on){let b=9;for(const x of cl)if(Math.abs(o-x)<Math.abs(b))b=o-x;if(Math.abs(b)<.4)dl.push(b)}cal=null;
   if(dl.length<5){$('mst').textContent='Поймано мало нот ('+dl.length+' из 12), повторите';return}
   dl.sort((a,b)=>a-b);const md=dl[dl.length>>1],mad=dl.map(x=>Math.abs(x-md)).sort((a,b)=>a-b)[dl.length>>1];
-  opt.CAL=Math.round(md*1000);opt.CALD=true;save();$('mst').textContent='Калибровка: '+opt.CAL+' мс, разброс '+Math.round(mad*1000)+' мс';latUpd()},11500)}
+  opt.CAL=Math.round(md*1000);opt.CALD=true;opt.CALDEV=c.dev;opt.CALP=Object.assign({},opt.CALP,{[c.dev]:opt.CAL});save();$('mst').textContent='Калибровка: '+opt.CAL+' мс, разброс '+Math.round(mad*1000)+' мс';latUpd()},Math.round((t1-ctx.currentTime)*1000)+11500)}
 const VF={раз:'voice/raz.mp3',два:'voice/dva.mp3',три:'voice/tri.mp3',четыре:'voice/chetyre.mp3',и:'voice/i.mp3'};
 async function loadE(){for(const k in VF){try{const r=await fetch(VF[k]);if(r.ok)await decodeV(k,await r.arrayBuffer())}catch(_){}}vstat()}
 const lvl=pl=>opt.N&&(!pl||opt.NP)?opt.NG/100:0;
@@ -245,7 +259,7 @@ function start(c){
  if(calOff())$('mst').textContent='Калибровка отменена';
  fails=0;unforce();popOff();
  if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.resume();
- if(opt.GM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-opt.CB:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
+ if(opt.GM&&!opt.DEM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-opt.CB:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
  clearInterval(timer);timer=setInterval(tick,40);tick();playUI(1);
 }
 function playUI(on){$('bplay').classList.toggle('on',!!on);$('bplaytx').textContent=on?'Пауза (пробел)':'Старт (пробел)'}
@@ -335,6 +349,9 @@ $('ogm').checked=opt.GM;$('osn').value=opt.S;hudUpd();if(opt.GM)$('mst').textCon
 $('ogm').onchange=ev=>{opt.GM=ev.target.checked;hudUpd();if(opt.GM)micOn();else{const c=micOff();if(!c)$('mst').textContent=''}save()};
 $('osn').oninput=ev=>{opt.S=+ev.target.value;sendThr();save()};$('osn').onchange=ev=>ev.target.blur();
 $('min').onchange=ev=>{opt.MIC=ev.target.value;save();micOn()};$('bcal').onclick=calib;
+const demUI=()=>{const b=$('bdem');b.classList.toggle('on',!!opt.DEM);b.setAttribute('aria-pressed',!!opt.DEM)};
+$('bdem').onclick=()=>{opt.DEM=!opt.DEM;if(opt.DEM){micOff();$('mst').textContent='Демо: приложение играет за вас и делает идеальные удары. Рекорды не пишутся.'}demUI();save()};
+$('cv').addEventListener('pointerdown',ev=>{if(opt.DEM)return;if(!opt.GM||!playing||!ctx)return;onset(ctx.currentTime+lat()/1000);ev.preventDefault()});
 $('pgb').onclick=ev=>{const r=ev.currentTarget.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width,d=B.map((_,i)=>bdur(i)),tot=d.reduce((a,b)=>a+b);let a=0,i=0;for(;i<B.length-1;i++){if(a+d[i]>x*tot)break;a+=d[i]}go(i)};
 setInterval(()=>{if(mic)$('lvf').style.width=Math.min(100,lv/(thr()*4)*100)+'%'},60);
 $('hg').innerHTML=Array.from({length:21},(_,j)=>{const c=Math.abs((j-10)*10);return `<i style="background:var(--${c<=45?'ok':c<=90?'lis':'need'})"></i>`}).join('');
@@ -342,7 +359,8 @@ let footS='';
 function foot(f){const p=(f*4)%1,h=.5-.5*Math.cos(2*Math.PI*p),r=Math.round(h),o=h>.5?'0':'1',s=r+o;if(s==footS)return;footS=s;
  const t=$('ltoe'),m=$('ltap'),d=$('lmid');if(!t)return;
  t.setAttribute('transform',`translate(0 ${-r*2})`);if(d)d.setAttribute('transform',`translate(0 ${-r})`);m.setAttribute('opacity',o)}
-$('mout').onchange=ev=>{opt.OUT=ev.target.value;save();if(ctx&&ctx.setSinkId)ctx.setSinkId(opt.OUT).catch(()=>{})};
+$('mout').onchange=ev=>{opt.OUT=ev.target.value;save();if(ctx&&ctx.setSinkId)ctx.setSinkId(opt.OUT).catch(()=>{});if(opt.GM&&!opt.DEM)micOn()};
+demUI();
 $('bauto').onclick=()=>{opt.CALD=false;save();latUpd()};latUpd();
 foot(0);loadE();
 addEventListener('keydown',ev=>{

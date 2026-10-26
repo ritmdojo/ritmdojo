@@ -31,7 +31,7 @@ test.describe('загрузка и исходное состояние', () => {
       N: true,
       NP: false,
       NG: 100,
-      GM: false,
+      GM: true,
       S: 60,
       CAL: 0,
       CALD: false,
@@ -64,8 +64,8 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#tempos button.on')).toHaveText('60');
     await expect(page.locator('#pname')).toHaveText('Четверти. Все четверти');
     await expect(page.locator('#pgt1')).toHaveText('Прошло 0:00');
-    await expect(page.locator('#pgt2')).toHaveText('Осталось 45:16');
-    await expect(page.locator('#pgt3')).toHaveText('Всего 45:16');
+    await expect(page.locator('#pgt2')).toHaveText('Осталось 52:48');
+    await expect(page.locator('#pgt3')).toHaveText('Всего 52:48');
     await expect(page.locator('#pgt4')).toHaveText('Урок 1 из 123');
     await expect(page.locator('#pgf')).toHaveCSS('width', '0px');
     await expect(page.locator('#phase')).toHaveText('Стоп');
@@ -77,7 +77,7 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#bhelp')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#bsave')).toHaveCount(0);
     expect(await page.evaluate(() => window.claude)).toBeUndefined();
-    await expect(page.locator('#mst')).toHaveText('');
+    await expect(page.locator('#mst')).toHaveText('Нажмите Старт, чтобы включить вход');
     await expect(page.locator('#ltoe')).toHaveAttribute('transform', 'translate(0 0)');
     await expect(page.locator('#lfoot')).not.toHaveAttribute('transform', /.*/);
     await expect(page.locator('#ltap')).toHaveAttribute('opacity', '1');
@@ -120,7 +120,7 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#onp')).not.toBeChecked();
     await expect(page.locator('#onv')).toHaveValue('100');
     await expect(page.locator('#onvv')).toHaveText('100%');
-    await expect(page.locator('#ogm')).not.toBeChecked();
+    await expect(page.locator('#ogm')).toBeChecked();
     await expect(page.locator('#osn')).toHaveValue('60');
     await expect(page.locator('#min')).toHaveValue('Системный вход');
     await expect(page.locator('#min option')).toHaveCount(1);

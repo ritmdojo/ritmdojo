@@ -65,6 +65,9 @@ button:hover{border-color:var(--mut)}button:focus-visible,select:focus-visible,i
 .chips{display:flex;gap:2px;flex-wrap:nowrap;min-width:0}
 .chips .chip{height:26px;min-width:24px;padding:0 4px;font-size:11px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .tbtns{display:flex;flex-wrap:nowrap;justify-content:center;gap:4px;margin-left:auto}
+.tbtn{height:40px;padding:0 12px;border-radius:10px;font-size:12.5px;flex:none;color:var(--mut);margin-left:auto}
+.tbtn.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+#cv{touch-action:none}
 .ic{width:40px;height:40px;flex:none;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;color:var(--mut)}
 .ic:hover{color:var(--fg);border-color:var(--mut)}
 .ic svg{display:block;width:20px;height:20px}
@@ -113,8 +116,9 @@ h1 svg{display:block;height:20px;width:auto;color:var(--fg)}
 .view{animation:viewin .18s ease-out}@keyframes viewin{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 #vst2,#vst{display:block;margin-top:8px;color:var(--mut);font-size:13px}
 p.note{font-size:13px;color:var(--mut);margin:0 2px}
-@media (max-width:430px){.topin{gap:6px;padding:8px 12px}h1 svg{height:15px}.logo{width:44px;height:19px}.gear{width:32px;height:32px}.tab{padding:6px 8px;font-size:13px}#phase{font-size:18px}}
-@media (max-width:365px){.ctl{gap:3px}.ctl .tempo{width:20px;height:24px;font-size:15px}.chips{gap:2px}.chips .chip{height:24px;min-width:22px;padding:0 3px;font-size:10px}.tbtns{gap:3px}.tbtns .ic,.ic.big{width:36px;height:36px}}
+@media (max-width:430px){.topin{gap:6px;padding:8px 12px}h1 svg{height:15px}.logo{width:44px;height:19px}.gear{width:32px;height:32px}.tab{padding:6px 8px;font-size:13px}#phase{font-size:18px}.ctl{gap:2px}.ctl .tempo{width:18px;height:24px;font-size:14px}.chips{gap:2px}.chips .chip{min-width:18px;padding:0 2px;font-size:10px}.tbtns{gap:3px}.tbtns .ic,.ic.big{width:36px;height:36px}.tbtn{height:36px;padding:0 8px;font-size:11px}}
+@media (max-width:365px){.chips .chip{min-width:16px;padding:0 1px}.tbtn{padding:0 6px;font-size:10.5px}}
+@media (max-width:365px){.ctl{gap:2px}.ctl .tempo{width:18px;height:24px;font-size:14px}.tbtns{gap:2px}.tbtns .ic,.ic.big{width:36px;height:36px}.tbtn{height:36px;font-size:10.5px;padding:0 6px}}
 @media (max-width:360px){.topin{gap:5px;padding:8px 10px}h1 svg{height:13px}.logo{width:38px;height:17px}.gear{width:30px;height:30px}.tab{padding:6px 7px;font-size:12px}.pgr{font-size:10px;gap:0 2px}}
 @media (max-width:354px){h1{display:none}}
 @media (prefers-reduced-motion:reduce){.view{animation:none}}
