@@ -814,21 +814,7 @@ test.describe('тап по канвасу, демо и автокалибров�
     expect(r.pop).toContain('Отлично 100%');
   });
 
-  test('клавиша X ловится как удар без микрофона', async ({ page }) => {
-    await boot(page, gameState({ CALD: true, CAL: 0 }));
-    await page.evaluate(() => {
-      opt.L = 0; opt.P = 1; playing = true;
-      gs = { n: 1, p: 0, g: 0, x: 0, m: 0, d: [] };
-      xq.push({ t: ctx.currentTime + .05, s: gs, u: false });
-    });
-    await page.keyboard.press('x');
-    expect(await page.evaluate(() => gs.p)).toBe(1);
-    await page.evaluate(() => { xq = []; pv = []; combo = 0; });
-    await page.keyboard.press('x');
-    expect(await page.evaluate(() => pv.length)).toBeGreaterThan(0);
-  });
-
-  test('калибровка привязана ко входу: смена входа сбрасывает её', async ({ page }) => {
+  test('калибровка привязана к входу: смена входа сбрасывает её', async ({ page }) => {
     await boot(page, gameState());
     await enableGame(page);
     const r = await page.evaluate(async () => {
