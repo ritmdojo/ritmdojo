@@ -191,15 +191,17 @@ test.describe('вкладки, шапка и логотип', () => {
         return Math.round(r.top + r.height / 2);
       };
       const card = document.getElementById('pg').getBoundingClientRect();
-      const bp = document.getElementById('bplay').getBoundingClientRect();
       const spans = [...document.querySelectorAll('#pg .pgr span')].map(e => Math.round(e.getBoundingClientRect().right));
+      const bp = document.getElementById('bplay').getBoundingClientRect();
+      const bpv = document.getElementById('bprev').getBoundingClientRect();
+      const bnx = document.getElementById('bnext').getBoundingClientRect();
+      const dL = bp.left - bpv.right, dR = bnx.left - bp.right;
       const ctl = document.querySelector('.ctl');
       return {
         progress: tops('#pg .pgr span'),
         tempoRow: ['#m5', '#tempos', '#p5', '#bdem'].map(mid),
         transport: tops('.tbtns .ic'),
-        playMid: Math.round(bp.left + bp.width / 2),
-        cardMid: Math.round(card.left + card.width / 2),
+        gapsAroundPlay: [Math.round(dL * 2) / 2, Math.round(dR * 2) / 2],
         overflow: ctl.scrollWidth - ctl.clientWidth,
         cardRight: Math.round(card.right),
         spans,
@@ -208,7 +210,7 @@ test.describe('вкладки, шапка и логотип', () => {
     expect(new Set(rows.progress).size).toBe(1);
     expect(new Set(rows.tempoRow).size).toBe(1);
     expect(new Set(rows.transport).size).toBe(1);
-    expect(rows.playMid).toBe(rows.cardMid);
+    expect(rows.gapsAroundPlay[0]).toBe(rows.gapsAroundPlay[1]);
     expect(rows.overflow).toBeLessThanOrEqual(1);
     expect(Math.max(...rows.spans)).toBeLessThanOrEqual(rows.cardRight);
   });
