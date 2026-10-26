@@ -370,7 +370,8 @@ addEventListener('keydown',ev=>{
  if(ev.target.tagName=='BUTTON'&&(ev.code=='Space'||ev.code=='Enter'||ev.code=='NumpadEnter'))return;
  const c=ev.code,m={Space:toggle,Enter:()=>start(true),NumpadEnter:()=>start(true),ArrowLeft:()=>go(cur-1),ArrowRight:()=>go(cur+1),ArrowUp:()=>pat(-1),ArrowDown:()=>pat(1),
  Minus:()=>setShift(-5),Equal:()=>setShift(5),NumpadSubtract:()=>setShift(-5),NumpadAdd:()=>setShift(5),
- KeyL:()=>{opt.loop=!opt.loop;$('oloop').checked=opt.loop;save()},KeyN:()=>{opt.NP=!opt.NP;$('onp').checked=opt.NP;applyBus();save()}};
+ KeyL:()=>{opt.loop=!opt.loop;$('oloop').checked=opt.loop;save()},KeyN:()=>{opt.NP=!opt.NP;$('onp').checked=opt.NP;applyBus();save()},
+ KeyX:()=>{if(opt.DEM||!playing||!ctx)return;onset(ctx.currentTime+lat()/1000)}};
  if(/^Digit[1-8]$/.test(c)){jump(+c.slice(5)-1,0,0);ev.preventDefault();return}
  if(m[c]){m[c]();ev.preventDefault()}
 });

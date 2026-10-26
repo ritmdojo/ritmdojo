@@ -60,14 +60,17 @@ button:hover{border-color:var(--mut)}button:focus-visible,select:focus-visible,i
 
 
 
-.ctl{display:flex;flex-wrap:nowrap;gap:3px;align-items:center;margin-top:8px}
+.ctl{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:3px;align-items:center;margin-top:8px}
+.tgrp{display:flex;flex-wrap:nowrap;gap:3px;align-items:center;min-width:0}
 .ctl .tempo{width:22px;height:26px;padding:0;font-size:16px;line-height:1;flex:none}
 .chips{display:flex;gap:2px;flex-wrap:nowrap;min-width:0}
 .chips .chip{height:26px;min-width:24px;padding:0 4px;font-size:11px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;flex:none}
-.tbtns{display:flex;flex-wrap:nowrap;justify-content:center;gap:4px;margin-left:auto}
-.tbtn{height:40px;padding:0 12px;border-radius:10px;font-size:12.5px;flex:none;color:var(--mut);margin-left:auto}
+.tbtn{height:40px;padding:0 12px;border-radius:10px;font-size:12.5px;flex:none;color:var(--mut)}
 .tbtn.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 #cv{touch-action:none}
+.tbtns{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:4px;margin-top:6px;flex-wrap:nowrap}
+.tbtns .tg{display:flex;flex-wrap:nowrap;gap:4px}
+.tbtns .tg:first-child{justify-content:flex-end}
 .ic{width:40px;height:40px;flex:none;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;color:var(--mut)}
 .ic:hover{color:var(--fg);border-color:var(--mut)}
 .ic svg{display:block;width:20px;height:20px}
