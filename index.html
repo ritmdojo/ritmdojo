@@ -32,13 +32,18 @@
 <button id="p5" class="ic tempo" type="button" title="Темп на 5 быстрее" aria-label="Темп на 5 быстрее">+</button>
 </div>
 <span class="sr" id="bpm">60</span>
+<button id="bdem" class="tbtn" type="button" aria-pressed="false" title="Демо: приложение играет само">Демо</button>
+</div>
 <div class="tbtns">
+<div class="tg">
 <button id="brst" class="ic" type="button" title="Сначала" aria-label="Начать сначала"></button>
 <button id="bprev" class="ic" type="button" title="Предыдущий урок" aria-label="Предыдущий урок"></button>
+</div>
 <button id="bplay" class="ic big" type="button" title="Старт и пауза" aria-label="Старт и пауза"><span class="sr" id="bplaytx">Старт (пробел)</span></button>
+<div class="tg">
 <button id="bnext" class="ic" type="button" title="Следующий урок" aria-label="Следующий урок"></button>
 </div>
-<button id="bdem" class="tbtn" type="button" aria-pressed="false" title="Демо: приложение играет само">Демо</button>
+</div>
 </div>
 </div>
 <div class="card" id="hud">
@@ -47,7 +52,7 @@
 <div id="strip"></div>
 <div id="cbar" aria-hidden="true"></div>
 <div class="cwrap"><canvas id="cv"></canvas><div id="pop" class="pop" role="status" aria-live="polite" hidden></div></div>
-<div id="hb" class="hint" role="note" hidden><b>Круги сверху</b> — что нужно сыграть, <b>ромбы снизу</b> — что вы сыграли. Зелёный: в точку, синий: рано или поздно, красный: мимо или лишняя нота. Красная линия — сейчас. Включите «Подключить гитару» в настройках и нажмите «Старт».</div>
+<div id="hb" class="hint" role="note" hidden><b>Круги сверху</b> — что нужно сыграть, <b>ромбы снизу</b> — что вы сыграли. Зелёный: в точку, синий: рано или поздно, красный: мимо или лишняя нота. Красная линия — сейчас. Включите «Игра включена» в настройках и нажмите «Старт».</div>
 <div id="fb" role="status" aria-live="polite"></div>
 </div>
 </section>
@@ -59,7 +64,7 @@
 </section>
 <section id="vhelp" class="view" aria-label="Подсказки" hidden>
 <div class="card" id="ghelp"><h2>Как играть</h2><dl>
-<dt>Включите игру</dt><dd>В настройках отметьте «Подключить гитару» и разрешите микрофон. Игра включена сразу, вход запустится при старте. Без микрофона оценку можно ставить тапом по окну нот или клавишей X.</dd>
+<dt>Включите игру</dt><dd>В настройках отметьте «Игра включена» и разрешите микрофон. Игра включена сразу, вход запустится при старте. Без микрофона оценку можно ставить тапом по окну нот или клавишей X.</dd>
 <dt>Демо</dt><dd>Кнопка «Демо» справа от строки темпа включает показ: приложение само делает идеальные удары под метроном. Микрофон не нужен, рекорды не пишутся. Повторное нажатие снимает режим.</dd>
 <dt>Наденьте наушники</dt><dd>Если на выходе динамики, микрофон ловит метроном, и оценка становится невозможной: при таких выходах игра выключается сама. В наушниках включите игру снова.</dd>
 <dt>Выберите вход</dt><dd>Если гитара подключена через аудиоинтерфейс, выберите его в списке «Вход». В Chrome выберите тот же интерфейс и в «Выходе», тогда вход и выход идут от одних часов.</dd>
@@ -125,7 +130,7 @@
 <label>Громкость рисунка<input type="range" id="onv" min="0" max="200" step="5" style="width:130px"><span id="onvv" style="min-width:44px;font-variant-numeric:tabular-nums"></span></label>
 </div></div>
 <div class="card"><h2>Игра с гитарой</h2><div class="opt">
-<label><input type="checkbox" id="ogm">Подключить гитару</label>
+<label><input type="checkbox" id="ogm">Игра включена</label>
 <label>Вход<select id="min"><option>Системный вход</option></select></label>
 <label>Чувствительность<input type="range" id="osn" min="0" max="100" style="width:130px"></label>
 <div id="lvm" title="Уровень сигнала"><i id="lvf"></i><i style="position:absolute;left:25%;top:0;bottom:0;width:2px;background:var(--fg)"></i></div>
