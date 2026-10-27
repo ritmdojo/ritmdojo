@@ -788,6 +788,30 @@ test.describe('тап по канвасу, демо и автокалибров�
     expect(await page.evaluate(() => gs.p)).toBe(0);
   });
 
+  test('клавиша X ловится как удар без микрофона', async ({ page }) => {
+    await boot(page, gameState({ CALD: true, CAL: 0, S: 100 }));
+    await page.evaluate(() => {
+      opt.L = 0; opt.P = 1; playing = true;
+      gs = { n: 1, p: 0, g: 0, x: 0, m: 0, d: [] };
+      xq.push({ t: ctx.currentTime + .05, s: gs, u: false });
+    });
+    await page.keyboard.press('x');
+    expect(await page.evaluate(() => gs.p)).toBe(1);
+  });
+
+  test('клавиша X в демо ничего не ловит', async ({ page }) => {
+    await boot(page, gameState({ CALD: true, CAL: 0, DEM: true }));
+    await openTab(page, 'play');
+    await page.locator('#bdem').click();
+    await page.evaluate(() => {
+      playing = true;
+      gs = { n: 1, p: 0, g: 0, x: 0, m: 0, d: [] };
+      xq.push({ t: ctx.currentTime + .05, s: gs, u: false });
+    });
+    await page.keyboard.press('x');
+    expect(await page.evaluate(() => gs.p)).toBe(0);
+  });
+
   test('кнопка демо включает режим без микрофона', async ({ page }) => {
     await boot(page, gameState());
     await openTab(page, 'play');
