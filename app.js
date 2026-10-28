@@ -81,7 +81,10 @@ let nv=[],pv=[],bh=[],det=null,mode='',tbs=0,fbs=0,trkLat=0,xq=[],gs=null,R=null
 const calOff=()=>{const on=!!calTimer||!!cal;if(calTimer)clearTimeout(calTimer);calTimer=null;cal=null;return on};
 const thr=()=>.002*Math.pow(50,(100-opt.S)/100);
 const acc=s=>s?Math.max(0,(s.p+.6*s.g-.3*s.x)/Math.max(1,s.n)*100):0;
-const flash=(t,c)=>{const e=$('fb');e.className='';void e.offsetWidth;e.className=c;e.textContent=t};
+let fbT=0;
+const fbOff=()=>{clearTimeout(fbT);fbT=0;const e=$('fb');if(!e)return;e.className='';e.textContent=''};
+const flash=(t,c)=>{const e=$('fb');clearTimeout(fbT);e.className='';void e.offsetWidth;e.className=c;e.textContent=t;
+ fbT=setTimeout(()=>{const f=$('fb');if(!f||f.textContent!==t)return;f.className=c+' fade';fbT=setTimeout(()=>{if(f.textContent===t)fbOff()},400)},900)};
 let popT=null;
 function popup(t,c){const e=$('pop');if(!e)return;e.textContent=t;e.className='pop '+c;e.hidden=false;clearTimeout(popT);popT=setTimeout(popOff,2000)}
 function popOff(){clearTimeout(popT);popT=null;const e=$('pop');if(e){e.hidden=true;e.textContent='';e.className='pop'}}
@@ -264,7 +267,7 @@ function start(c){
 }
 function playUI(on){$('bplay').classList.toggle('on',!!on);$('bplaytx').textContent=on?'Пауза (пробел)':'Старт (пробел)'}
 function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];fails=0;unforce();playUI(0);popOff();$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
- if(gsp.length)gsp.forEach(s=>s.classList.remove('now'));nowIdx=-1;lastK=-9;lastPh='';lastPct=-1;$('strip').classList.remove('mute');foot(0);$('fb').textContent='';$('fb').className=''}
+ if(gsp.length)gsp.forEach(s=>s.classList.remove('now'));nowIdx=-1;lastK=-9;lastPh='';lastPct=-1;$('strip').classList.remove('mute');foot(0);fbOff()}
 
 function drawStrip(p){
  const ev=p[1],u=[.5,1/3,.25,1/6,.125].find(u=>ev.every(([s,a,d])=>[s,d].every(v=>Math.abs(v/u-Math.round(v/u))<1e-6)))||.125,N=Math.round(4/u),tri=Math.abs(u-1/3)<1e-6;
@@ -299,7 +302,7 @@ function frame(){
  const ph=$('ph');if(ph){const pc=Math.round(f*100);if(pc!=lastPct){lastPct=pc;ph.style.left=pc+'%'}}
  const lis=it.k>=0&&it.k<opt.L,rs=it.k>=opt.L+opt.P;
  const pt=it.k<0?'Счёт':rs?'Итог':lis?'Слушай':'Играй';
- if(pt!=lastPh){lastPh=pt;const P=$('phase');P.textContent=pt;P.className=it.k<0||rs?'cnt':lis?'lis':'pl'}
+ if(pt!=lastPh){lastPh=pt;const P=$('phase');P.textContent=pt;P.className=it.k<0||rs?'cnt':lis?'lis':'pl';if(!$('pop').hidden&&pt!=='Итог')popOff()}
  if(it.k!=lastK){if(it.k==0&&lastK==-1)popup('Погнали!','go');lastK=it.k;$('bars').textContent=it.k<0?(opt.CB>1?`счёт ${opt.CB+it.k+1} из ${opt.CB}`:'такт счёта'):`такт ${it.k+1} из ${it.tot}`;$('strip').classList.toggle('mute',!lis&&it.k>=0)}
  const idx=gsp.length?Math.floor(f*gsp.length):-1;
  if(idx!=nowIdx){if(gsp[nowIdx])gsp[nowIdx].classList.remove('now');if(gsp[idx])gsp[idx].classList.add('now');nowIdx=idx}

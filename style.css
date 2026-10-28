@@ -97,7 +97,7 @@ kbd{font:inherit;border:1px solid var(--line);border-bottom-width:2px;border-rad
 #rt th:last-child,#rt td:last-child{padding-left:12px}
 #rt td.empty{color:var(--mut);padding:10px 0}
 #rte{margin:10px 0 0;font-size:13px;color:var(--mut)}
-#fb{font-size:18px;font-weight:700;min-height:24px;margin-top:2px;text-align:center}#fb.ok{color:var(--ok);animation:pop .25s}#fb.bad{color:var(--need);animation:pop .25s}@keyframes pop{from{transform:scale(1.2)}to{transform:scale(1)}}
+#fb{font-size:18px;font-weight:700;min-height:24px;margin-top:2px;text-align:center;transition:opacity .4s ease}#fb.fade{opacity:0}#fb.ok{color:var(--ok);animation:pop .25s}#fb.bad{color:var(--need);animation:pop .25s}@keyframes pop{from{transform:scale(1.2)}to{transform:scale(1)}}
 #lvm{position:relative;width:130px;height:10px;background:var(--line);border-radius:5px;overflow:hidden}#lvf{display:block;height:100%;width:0;background:var(--ok)}
 #hg{display:flex;align-items:flex-end;gap:2px;height:48px;margin-top:8px;border-bottom:2px solid var(--line)}#hg i{flex:1;opacity:.85;min-height:2px;border-radius:2px 2px 0 0}
 h2{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:0 0 10px}

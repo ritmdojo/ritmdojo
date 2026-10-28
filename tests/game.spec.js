@@ -791,6 +791,29 @@ test.describe('тап по канвасу, демо и автокалибров�
     expect(await page.evaluate(() => gs.p)).toBe(0);
   });
 
+  test('оценка ноты гаснет сама через секунду', async ({ page }) => {
+    await boot(page, gameState({ CALD: true, CAL: 0, S: 100 }));
+    await page.evaluate(() => {
+      opt.L = 0; opt.P = 1; playing = true;
+      gs = { n: 1, p: 0, g: 0, x: 0, m: 0, d: [] };
+      xq.push({ t: ctx.currentTime + .05, s: gs, u: false });
+    });
+    await page.keyboard.press('x');
+    await expect(page.locator('#fb')).toHaveText('Идеально');
+    await expect(page.locator('#fb')).toHaveText('', { timeout: 3000 });
+  });
+
+  test('попап гаснет при смене фазы и не дублирует статус', async ({ page }) => {
+    await boot(page, gameState({ L: 2, P: 2 }));
+    await page.evaluate(() => {
+      playing = true; lastPh = 'Итог'; popup('Неудача 0%', 'bad');
+      q = [{ t: ctx.currentTime - 5, k: 0, spb: .5, bi: 0, tot: 4 }];
+      frame();
+    });
+    await expect(page.locator('#phase')).toHaveText('Слушай');
+    await expect(page.locator('#pop')).toBeHidden();
+  });
+
   test('без галочки «Подключить гитару» браузер не спрашивает микрофон', async ({ page }) => {
     await page.addInitScript(() => {
       window.__gum = 0;
