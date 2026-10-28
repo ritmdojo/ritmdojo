@@ -237,8 +237,8 @@ test.describe('настройки и сохранения', () => {
     await expect(page.locator('#rt')).toBeVisible();
     await expect(page.locator('#hud')).toBeHidden();
     await expect(page.locator('#tscore')).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.locator('#mst')).toHaveText('Нажмите Старт, чтобы включить вход');
-    await expect(page.locator('#ogm')).toBeChecked();
+    await expect(page.locator('#mst')).toContainText('удар — тап по окну нот или клавиша X');
+    await expect(page.locator('#ogm')).not.toBeChecked();
   });
 
   test('ошибки записи localStorage не ломают страницу', async ({ page }) => {

@@ -32,6 +32,7 @@ test.describe('загрузка и исходное состояние', () => {
       NP: false,
       NG: 100,
       GM: true,
+      MICON: false,
       S: 60,
       CAL: 0,
       CALD: false,
@@ -77,7 +78,7 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#bhelp')).toHaveAttribute('aria-pressed', 'false');
     await expect(page.locator('#bsave')).toHaveCount(0);
     expect(await page.evaluate(() => window.claude)).toBeUndefined();
-    await expect(page.locator('#mst')).toHaveText('Нажмите Старт, чтобы включить вход');
+    await expect(page.locator('#mst')).toContainText('Игра идёт без микрофона: удар — тап по окну нот или клавиша X');
     await expect(page.locator('#ltoe')).toHaveAttribute('transform', 'translate(0 0)');
     await expect(page.locator('#lfoot')).not.toHaveAttribute('transform', /.*/);
     await expect(page.locator('#ltap')).toHaveAttribute('opacity', '1');
@@ -120,7 +121,7 @@ test.describe('загрузка и исходное состояние', () => {
     await expect(page.locator('#onp')).not.toBeChecked();
     await expect(page.locator('#onv')).toHaveValue('100');
     await expect(page.locator('#onvv')).toHaveText('100%');
-    await expect(page.locator('#ogm')).toBeChecked();
+    await expect(page.locator('#ogm')).not.toBeChecked();
     await expect(page.locator('#osn')).toHaveValue('60');
     await expect(page.locator('#min')).toHaveValue('Системный вход');
     await expect(page.locator('#min option')).toHaveCount(1);

@@ -48,7 +48,7 @@ const EX=[
 {t:'Синкопа',l:[60,75,90],p:[['Только «и» всех долей',g('.X.X.X.X',H)],['1, 1и, 2и, 3, 4',e([0,.5,1.5,2,3],1)],['1, 2и, 3и, 4и',e([0,1.5,2.5,3.5],1)],['1, 2, 3и, 4и',e([0,1,2.5,3.5],1)],['3-3-3-3-4 шестнадцатыми',e([0,.75,1.5,2.25,3],1)]]}
 ];
 const B=[];EX.forEach((x,xi)=>x.p.forEach((p,pi)=>x.l.forEach((v,ti)=>B.push({xi,pi,ti,bpm:v}))));
-let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,PIT:164.81,GM:true,S:60,CAL:0,CALD:false,CALDEV:'',CALP:{},OUT:'',MIC:'',HI:0,DE:false,skip:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
+let cur=0,sc=0,k=0,shift=0,playing=false,ctx,out,nextT=0,timer,q=[],opt={loop:false,count:true,CB:2,L:2,P:4,V:true,D:150,G:130,N:true,NP:false,NG:100,PIT:164.81,GM:true,MICON:false,S:60,CAL:0,CALD:false,CALDEV:'',CALP:{},OUT:'',MIC:'',HI:0,DE:false,skip:true,best:{},rec:{},O:{c:0,t:0,n:0,v:0}};
 try{const s=JSON.parse(localStorage.getItem('rt2')||'{}');if(s.opt)Object.assign(opt,s.opt);if(Number.isInteger(s.cur)&&B[s.cur])cur=s.cur;shift=Number(s.shift)||0}catch(_){}
 const save=()=>{try{localStorage.setItem('rt2',JSON.stringify({cur,shift,opt}))}catch(_){}};
 const bpmOf=i=>Math.max(30,Math.min(240,B[i].bpm+shift));
@@ -183,10 +183,10 @@ async function micOn(){micOff();const gen=micGen;try{
  }
  if(c.setSinkId&&outs.length){$('lout').style.display='flex';$('mout').innerHTML=outs.map(x=>`<option value="${x.deviceId}">${x.label||'Выход'}</option>`).join('');if(opt.OUT){$('mout').value=opt.OUT;c.setSinkId(opt.OUT).catch(()=>{})}}
  const dl=outs.find(x=>x.deviceId=='default')||outs.find(x=>x.deviceId==opt.OUT)||outs[0],ho=hp(dl&&dl.label);
- if(ho===false){micOff();opt.GM=false;$('ogm').checked=false;save();
-  $('mst').textContent='Выход не похож на наушники ('+(dl&&dl.label||'динамик')+'): игра выключена, иначе микрофон ловит обратную связь. Включите наушники и снова включите игру.';latUpd();return}
+ if(ho===false){micOff();opt.MICON=false;$('ogm').checked=false;save();
+  $('mst').textContent='Выход не похож на наушники ('+(dl&&dl.label||'динамик')+'): микрофон не включён, иначе он ловит метроном. Играйте тапом по окну нот или клавишей X, а в наушниках снова включите «Подключить гитару».';latUpd();return}
  $('mst').textContent='Вход включён. Сыграйте ноту: полоска справа должна заходить за метку.';latUpd()}
- catch(e){if(gen!==micGen)return;micOff();opt.GM=false;$('ogm').checked=false;$('mst').textContent='Вход недоступен ('+(e.name||e)+'). Разрешите микрофон в настройках браузера и откройте страницу по https или на localhost.';save()}}
+ catch(e){if(gen!==micGen)return;micOff();opt.MICON=false;$('ogm').checked=false;$('mst').textContent='Вход недоступен ('+(e.name||e)+'). Разрешите микрофон в настройках браузера и откройте страницу по https или на localhost. Пока играйте тапом по окну нот или клавишей X.';save()}}
 let CH=96;
 function sizeCv(rw,rh){const c=$('cv'),dp=Math.min(2,devicePixelRatio||1);CH=Math.max(96,Math.round(rh));c.dataset.w=rw;c.dataset.h=CH;c.width=Math.round(rw*dp);c.height=Math.round(CH*dp);c.getContext('2d').setTransform(dp,0,0,dp,0,0)}
 let CC=null,cvW=0,cvH=0,barr=[];
@@ -259,7 +259,7 @@ function start(c){
  if(calOff())$('mst').textContent='Калибровка отменена';
  fails=0;unforce();popOff();
  if(!ctx)ctx=new (window.AudioContext||window.webkitAudioContext)();ctx.resume();
- if(opt.GM&&!opt.DEM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-opt.CB:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
+ if(opt.MICON&&!opt.DEM&&!mic)micOn();kill();xq=[];nv=[];pv=[];bh=[];gs=null;R=null;combo=0;sc=cur;k=(c&&opt.count)?-opt.CB:0;nextT=ctx.currentTime+.1+(opt.V&&!full()?opt.D/1000:0)+Math.max(0,-Math.min(0,...[...VW,'и'].map(w=>opt.O[w]||0)))/1000;q=[];playing=true;
  clearInterval(timer);timer=setInterval(tick,40);tick();playUI(1);
 }
 function playUI(on){$('bplay').classList.toggle('on',!!on);$('bplaytx').textContent=on?'Пауза (пробел)':'Старт (пробел)'}
@@ -345,10 +345,10 @@ TN.forEach(([k])=>{fo(k);const r=$('r'+k);r.oninput=ev=>{opt.O[k]=+ev.target.val
 function syncTune(){[...VW,'и'].forEach(w=>{const r=$('r'+w);if(r){r.value=opt.O[w]||0;fo(w)}});save()}
 $('ta').onclick=()=>{[...VW,'и'].forEach(w=>{if(PC[w]!=null)opt.O[w]=-PC[w]});syncTune()};
 $('tz').onclick=()=>{TN.forEach(([k])=>{opt.O[k]=0});syncTune()};
-$('ogm').checked=opt.GM;$('osn').value=opt.S;hudUpd();if(opt.GM)$('mst').textContent='Нажмите Старт, чтобы включить вход';
-$('ogm').onchange=ev=>{opt.GM=ev.target.checked;hudUpd();if(opt.GM)micOn();else{const c=micOff();if(!c)$('mst').textContent=''}save()};
+$('ogm').checked=!!opt.MICON;$('osn').value=opt.S;hudUpd();$('mst').textContent=opt.MICON?'Нажмите Старт, чтобы включить вход':'Игра идёт без микрофона: удар — тап по окну нот или клавиша X. Микрофон — по галочке «Подключить гитару».';
+$('ogm').onchange=ev=>{opt.MICON=ev.target.checked;hudUpd();if(opt.MICON)micOn();else{const c=micOff();if(!c)$('mst').textContent='Микрофон отключён: удар — тап по окну нот или клавиша X.'}save()};
 $('osn').oninput=ev=>{opt.S=+ev.target.value;sendThr();save()};$('osn').onchange=ev=>ev.target.blur();
-$('min').onchange=ev=>{opt.MIC=ev.target.value;save();micOn()};$('bcal').onclick=calib;
+$('min').onchange=ev=>{opt.MIC=ev.target.value;save();if(opt.MICON&&!opt.DEM)micOn()};$('bcal').onclick=calib;
 const demUI=()=>{const b=$('bdem');b.classList.toggle('on',!!opt.DEM);b.setAttribute('aria-pressed',!!opt.DEM)};
 $('bdem').onclick=()=>{opt.DEM=!opt.DEM;if(opt.DEM){micOff();$('mst').textContent='Демо: приложение играет за вас и делает идеальные удары. Рекорды не пишутся.'}demUI();save()};
 $('cv').addEventListener('pointerdown',ev=>{if(opt.DEM)return;if(!opt.GM||!playing||!ctx)return;onset(ctx.currentTime+lat()/1000);ev.preventDefault()});
@@ -359,7 +359,7 @@ let footS='';
 function foot(f){const p=(f*4)%1,h=.5-.5*Math.cos(2*Math.PI*p),r=Math.round(h),o=h>.5?'0':'1',s=r+o;if(s==footS)return;footS=s;
  const t=$('ltoe'),m=$('ltap'),d=$('lmid');if(!t)return;
  t.setAttribute('transform',`translate(0 ${-r*2})`);if(d)d.setAttribute('transform',`translate(0 ${-r})`);m.setAttribute('opacity',o)}
-$('mout').onchange=ev=>{opt.OUT=ev.target.value;save();if(ctx&&ctx.setSinkId)ctx.setSinkId(opt.OUT).catch(()=>{});if(opt.GM&&!opt.DEM)micOn()};
+$('mout').onchange=ev=>{opt.OUT=ev.target.value;save();if(ctx&&ctx.setSinkId)ctx.setSinkId(opt.OUT).catch(()=>{});if(opt.MICON&&!opt.DEM)micOn()};
 demUI();
 $('bauto').onclick=()=>{opt.CALD=false;save();latUpd()};latUpd();
 foot(0);loadE();

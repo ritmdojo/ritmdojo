@@ -65,37 +65,39 @@ test.describe('режим игры: вход и настройки', () => {
     await expectNoErrors(errors);
   });
 
-  test('выключение игры останавливает поток и очищает статус', async ({ page }) => {
+  test('снятие галочки останавливает поток, игра остаётся', async ({ page }) => {
     await boot(page, gameState());
     await enableGame(page);
     await page.locator('#ogm').uncheck();
-    await expect(page.locator('#mst')).toHaveText('');
+    await expect(page.locator('#mst')).toContainText('Микрофон отключён');
     const state = await page.evaluate(() => ({
       mode,
       mic,
       proc,
       det,
       gm: opt.GM,
-      saved: JSON.parse(localStorage.getItem('rt2')).opt.GM,
+      micon: opt.MICON,
+      saved: JSON.parse(localStorage.getItem('rt2')).opt.MICON,
       lst: document.getElementById('lst').textContent,
     }));
-    expect(state).toMatchObject({ mode: '', mic: null, proc: null, det: null, gm: false, saved: false });
+    expect(state).toMatchObject({ mode: '', mic: null, proc: null, det: null, gm: true, micon: false, saved: false });
     expect(state.lst).toContain('выключен');
   });
 
-  test('ошибка getUserMedia выключает игру и сохраняет это', async ({ page }) => {
+  test('ошибка getUserMedia снимает галочку и сохраняет это', async ({ page }) => {
     await page.addInitScript(() => {
       navigator.mediaDevices.getUserMedia = () => Promise.reject(new DOMException('нет входа', 'NotFoundError'));
     });
     const errors = watchErrors(page);
-    await boot(page, { opt: { GM: false } });
+    await boot(page, { opt: { GM: true, MICON: false } });
     await openTab(page, 'settings');
     await page.locator('#ogm').click();
     await expect(page.locator('#mst')).toContainText('Вход недоступен (NotFoundError)');
     await expect(page.locator('#ogm')).not.toBeChecked();
     const state = await readState(page);
-    expect(state.opt.GM).toBe(false);
-    expect(state.saved.opt.GM).toBe(false);
+    expect(state.opt.MICON).toBe(false);
+    expect(state.saved.opt.MICON).toBe(false);
+    expect(state.opt.GM).toBe(true);
     expect(await page.evaluate(() => ({ mic, proc, mode }))).toEqual({ mic: null, proc: null, mode: '' });
     await expect(page.locator('#lst')).toContainText('выключен');
     await expectNoErrors(errors);
@@ -115,18 +117,18 @@ test.describe('режим игры: вход и настройки', () => {
         return original(...args);
       };
     });
-    await boot(page, { opt: { GM: false } });
+    await boot(page, { opt: { GM: true, MICON: false } });
     await openTab(page, 'settings');
     await page.locator('#ogm').check();
     await page.locator('#ogm').uncheck();
     await page.waitForTimeout(700);
-    const state = await page.evaluate(() => ({ mic, proc, mode, gm: opt.GM, stops: window.__stops }));
+    const state = await page.evaluate(() => ({ mic, proc, mode, micon: opt.MICON, stops: window.__stops }));
     expect(state.mic).toBeNull();
     expect(state.proc).toBeNull();
     expect(state.mode).toBe('');
-    expect(state.gm).toBe(false);
+    expect(state.micon).toBe(false);
     expect(state.stops).toBeGreaterThan(0);
-    await expect(page.locator('#mst')).toHaveText('');
+    await expect(page.locator('#mst')).toContainText('Микрофон отключён');
   });
 
   test('без AudioWorklet используется ScriptProcessor и Det', async ({ page }) => {
@@ -757,10 +759,11 @@ test.describe('режим игры: воспроизведение и калиб
 });
 
 test.describe('тап по канвасу, демо и автокалибровка', () => {
-  test('игра включена по умолчанию', async ({ page }) => {
+  test('игра идёт без микрофона, микрофон включается галочкой', async ({ page }) => {
     await boot(page);
-    expect(await page.evaluate(() => opt.GM)).toBe(true);
-    await expect(page.locator('#ogm')).toBeChecked();
+    expect(await page.evaluate(() => ({ gm: opt.GM, micon: !!opt.MICON, mic }))).toEqual({ gm: true, micon: false, mic: null });
+    await expect(page.locator('#ogm')).not.toBeChecked();
+    await expect(page.locator('#ogm')).toHaveJSProperty('checked', false);
   });
 
   test('тап по канвасу ловится как удар', async ({ page }) => {
@@ -788,6 +791,42 @@ test.describe('тап по канвасу, демо и автокалибров�
     expect(await page.evaluate(() => gs.p)).toBe(0);
   });
 
+  test('без галочки «Подключить гитару» браузер не спрашивает микрофон', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.__gum = 0;
+      const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+      navigator.mediaDevices.getUserMedia = (...args) => {
+        window.__gum++;
+        return original(...args);
+      };
+    });
+    await boot(page, gameState());
+    await page.locator('#bplay').click();
+    await page.waitForTimeout(400);
+    const r = await page.evaluate(() => ({ gum: window.__gum, playing, mic, micon: opt.MICON, q: q.length }));
+    expect(r.gum).toBe(0);
+    expect(r.mic).toBeNull();
+    expect(r.playing).toBe(true);
+    expect(r.micon).toBe(false);
+    expect(r.q).toBeGreaterThan(0);
+  });
+
+  test('после разрешения микрофона окно нот не зависает', async ({ page }) => {
+    await boot(page, gameState());
+    await enableGame(page);
+    await openTab(page, 'play');
+    await page.locator('#bplay').click();
+    await page.waitForTimeout(400);
+    const a = await page.evaluate(() => document.getElementById('cv').toDataURL());
+    await page.waitForTimeout(400);
+    const b = await page.evaluate(() => document.getElementById('cv').toDataURL());
+    const st = await page.evaluate(() => ({ playing, mic: !!mic, k }));
+    expect(a).not.toBe(b);
+    expect(st.mic).toBe(true);
+    expect(st.playing).toBe(true);
+    expect(st.k).toBeGreaterThanOrEqual(0);
+  });
+
   test('клавиша X ловится как удар без микрофона', async ({ page }) => {
     await boot(page, gameState({ CALD: true, CAL: 0, S: 100 }));
     await page.evaluate(() => {
@@ -800,7 +839,7 @@ test.describe('тап по канвасу, демо и автокалибров�
   });
 
   test('клавиша X в демо ничего не ловит', async ({ page }) => {
-    await boot(page, gameState({ CALD: true, CAL: 0, DEM: true }));
+    await boot(page, gameState({ CALD: true, CAL: 0 }));
     await openTab(page, 'play');
     await page.locator('#bdem').click();
     await page.evaluate(() => {
@@ -873,6 +912,6 @@ test.describe('тап по канвасу, демо и автокалибров�
     await openTab(page, 'settings');
     await page.evaluate(() => micOn());
     await expect(page.locator('#mst')).toContainText('не похож на наушники');
-    expect(await page.evaluate(() => ({ g: opt.GM, mic: mic }))).toEqual({ g: false, mic: null });
+    expect(await page.evaluate(() => ({ g: opt.GM, micon: opt.MICON, mic: mic }))).toEqual({ g: true, micon: false, mic: null });
   });
 });
