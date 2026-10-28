@@ -791,6 +791,21 @@ test.describe('тап по канвасу, демо и автокалибров�
     expect(await page.evaluate(() => gs.p)).toBe(0);
   });
 
+  test('фаза дублируется крупным ярлыком на канвасе', async ({ page }) => {
+    await boot(page, gameState({ L: 2, P: 2 }));
+    await expect(page.locator('#phb')).toHaveText('Стоп');
+    await page.evaluate(() => {
+      playing = true; lastPh = '';
+      q = [{ t: ctx.currentTime - 5, k: 0, spb: .5, bi: 0, tot: 4 }];
+      frame();
+    });
+    await expect(page.locator('#phb')).toHaveText('Слушай');
+    await expect(page.locator('#phb')).toHaveClass(/lis/);
+    await page.evaluate(() => stop());
+    await expect(page.locator('#phb')).toHaveText('Стоп');
+    await expect(page.locator('#phb')).toBeVisible();
+  });
+
   test('оценка ноты гаснет сама через секунду', async ({ page }) => {
     await boot(page, gameState({ CALD: true, CAL: 0, S: 100 }));
     await page.evaluate(() => {

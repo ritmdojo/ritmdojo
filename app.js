@@ -82,6 +82,7 @@ const calOff=()=>{const on=!!calTimer||!!cal;if(calTimer)clearTimeout(calTimer);
 const thr=()=>.002*Math.pow(50,(100-opt.S)/100);
 const acc=s=>s?Math.max(0,(s.p+.6*s.g-.3*s.x)/Math.max(1,s.n)*100):0;
 let fbT=0;
+const phbUpd=(t,c)=>{const e=$('phb');if(!e)return;e.hidden=!t;if(t&&e.textContent!==t)e.textContent=t;e.className='phb'+(c?' '+c:'')};
 const fbOff=()=>{clearTimeout(fbT);fbT=0;const e=$('fb');if(!e)return;e.className='';e.textContent=''};
 const flash=(t,c)=>{const e=$('fb');clearTimeout(fbT);e.className='';void e.offsetWidth;e.className=c;e.textContent=t;
  fbT=setTimeout(()=>{const f=$('fb');if(!f||f.textContent!==t)return;f.className=c+' fade';fbT=setTimeout(()=>{if(f.textContent===t)fbOff()},400)},900)};
@@ -266,7 +267,7 @@ function start(c){
  clearInterval(timer);timer=setInterval(tick,40);tick();playUI(1);
 }
 function playUI(on){$('bplay').classList.toggle('on',!!on);$('bplaytx').textContent=on?'Пауза (пробел)':'Старт (пробел)'}
-function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];fails=0;unforce();playUI(0);popOff();$('phase').textContent='Стоп';$('phase').className='';$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
+function stop(){playing=false;clearInterval(timer);if(ctx)kill();q=[];fails=0;unforce();playUI(0);popOff();$('phase').textContent='Стоп';$('phase').className='';phbUpd('Стоп','');$('bars').textContent='';$('ph')&&($('ph').style.left='0%');
  if(gsp.length)gsp.forEach(s=>s.classList.remove('now'));nowIdx=-1;lastK=-9;lastPh='';lastPct=-1;$('strip').classList.remove('mute');foot(0);fbOff()}
 
 function drawStrip(p){
@@ -302,7 +303,7 @@ function frame(){
  const ph=$('ph');if(ph){const pc=Math.round(f*100);if(pc!=lastPct){lastPct=pc;ph.style.left=pc+'%'}}
  const lis=it.k>=0&&it.k<opt.L,rs=it.k>=opt.L+opt.P;
  const pt=it.k<0?'Счёт':rs?'Итог':lis?'Слушай':'Играй';
- if(pt!=lastPh){lastPh=pt;const P=$('phase');P.textContent=pt;P.className=it.k<0||rs?'cnt':lis?'lis':'pl';if(!$('pop').hidden&&pt!=='Итог')popOff()}
+ if(pt!=lastPh){lastPh=pt;const pc=it.k<0||rs?'cnt':lis?'lis':'pl';const P=$('phase');P.textContent=pt;P.className=pc;phbUpd(pt,pc);if(!$('pop').hidden&&pt!=='Итог')popOff()}
  if(it.k!=lastK){if(it.k==0&&lastK==-1)popup('Погнали!','go');lastK=it.k;$('bars').textContent=it.k<0?(opt.CB>1?`счёт ${opt.CB+it.k+1} из ${opt.CB}`:'такт счёта'):`такт ${it.k+1} из ${it.tot}`;$('strip').classList.toggle('mute',!lis&&it.k>=0)}
  const idx=gsp.length?Math.floor(f*gsp.length):-1;
  if(idx!=nowIdx){if(gsp[nowIdx])gsp[nowIdx].classList.remove('now');if(gsp[idx])gsp[idx].classList.add('now');nowIdx=idx}
@@ -348,7 +349,7 @@ TN.forEach(([k])=>{fo(k);const r=$('r'+k);r.oninput=ev=>{opt.O[k]=+ev.target.val
 function syncTune(){[...VW,'и'].forEach(w=>{const r=$('r'+w);if(r){r.value=opt.O[w]||0;fo(w)}});save()}
 $('ta').onclick=()=>{[...VW,'и'].forEach(w=>{if(PC[w]!=null)opt.O[w]=-PC[w]});syncTune()};
 $('tz').onclick=()=>{TN.forEach(([k])=>{opt.O[k]=0});syncTune()};
-$('ogm').checked=!!opt.MICON;$('osn').value=opt.S;hudUpd();$('mst').textContent=opt.MICON?'Нажмите Старт, чтобы включить вход':'Игра идёт без микрофона: удар — тап по окну нот или клавиша X. Микрофон — по галочке «Подключить гитару».';
+$('ogm').checked=!!opt.MICON;phbUpd('Стоп','');$('osn').value=opt.S;hudUpd();$('mst').textContent=opt.MICON?'Нажмите Старт, чтобы включить вход':'Игра идёт без микрофона: удар — тап по окну нот или клавиша X. Микрофон — по галочке «Подключить гитару».';
 $('ogm').onchange=ev=>{opt.MICON=ev.target.checked;hudUpd();if(opt.MICON)micOn();else{const c=micOff();if(!c)$('mst').textContent='Микрофон отключён: удар — тап по окну нот или клавиша X.'}save()};
 $('osn').oninput=ev=>{opt.S=+ev.target.value;sendThr();save()};$('osn').onchange=ev=>ev.target.blur();
 $('min').onchange=ev=>{opt.MIC=ev.target.value;save();if(opt.MICON&&!opt.DEM)micOn()};$('bcal').onclick=calib;
